@@ -13,7 +13,7 @@ import { reduxFirestore, firestoreReducer } from 'redux-firestore';
 
 import AppNavbar from './components/AppNavbar';
 import Login from './components/Login';
-import Dashboard from './components/Dashboard';
+import Tasks from './components/Tasks';
 import firebaseConfig from './secret/firebaseConfig';
 
 // import { firebaseConnect } from 'react-redux-firebase';
@@ -35,7 +35,7 @@ firebase.firestore(); // <- needed if using firestore
 // Add reduxReduxFirebase enhancer when making store creator
 const createStoreWithFirebase = compose(
   reactReduxFirebase(firebase, rrfConfig), // firebase instance as first argument
-  reduxFirestore(firebase) // <- needed if using firestore
+  reduxFirestore(firebase)
 )(createStore);
 
 // Add firebase to reducers
@@ -70,11 +70,7 @@ class App extends Component {
                   path="/login"
                   component={UserIsNotAuthenticated(Login)}
                 />
-                <Route
-                  exact
-                  path="/"
-                  component={UserIsAuthenticated(Dashboard)}
-                />
+                <Route exact path="/" component={UserIsAuthenticated(Tasks)} />
               </Switch>
             </div>
           </div>
