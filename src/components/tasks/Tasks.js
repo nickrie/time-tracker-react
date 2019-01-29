@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { firestoreConnect, isLoaded, isEmpty } from 'react-redux-firebase';
-import LoadingScreen from '../components/LoadingScreen';
+
+import LoadingScreen from './../LoadingScreen';
+import Task from './Task';
 
 class Tasks extends Component {
   state = {};
@@ -45,13 +47,7 @@ class Tasks extends Component {
             <div className="col col-2" />
           </div>
           {tasks.map(task => (
-            <div className="row" key={task.id}>
-              <div className="col col-1" />
-              <div className="col col-4">{task.name}</div>
-              <div className="col col-3">{task.id}</div>
-              <div className="col col-2" />
-              <div className="col col-2" />
-            </div>
+            <Task key={task.id} task={task} />
           ))}
         </div>
       );

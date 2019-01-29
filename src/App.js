@@ -11,9 +11,9 @@ import firebase from 'firebase';
 import 'firebase/firestore'; // <- needed if using firestore
 import { reduxFirestore, firestoreReducer } from 'redux-firestore';
 
-import AppNavbar from './components/AppNavbar';
+import AppNavbar from './components/layout/AppNavbar';
 import Login from './components/Login';
-import Tasks from './components/Tasks';
+import Tasks from './components/tasks/Tasks';
 import firebaseConfig from './secret/firebaseConfig';
 
 // import { firebaseConnect } from 'react-redux-firebase';
