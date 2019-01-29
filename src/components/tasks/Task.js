@@ -6,8 +6,7 @@ import LoggedTime from './LoggedTime';
 
 class Task extends Component {
   state = {
-    isActive: null,
-    startedDateStr: null
+    started: null
   };
 
   constructor(props) {
@@ -18,20 +17,36 @@ class Task extends Component {
   componentDidMount() {
     const { task } = this.props;
     this.setState({
-      isActive: task.started !== null,
-      startedDateStr: this.getStartedDateStr(task.started)
+      started: task.started
     });
   }
 
-  getStartedDateStr(started) {
-    return started === null ? null : new Date(started.toDate()).toDateString();
+  isActive() {
+    const { task } = this.props;
+    return task.started !== null;
+  }
+
+  getTimeLoggedStr() {
+    return this.isActive() ? 'ACTIVE' : 'TODO';
+  }
+
+  getStartedDateStr() {
+    const { task } = this.props;
+    return task.started === null
+      ? null
+      : new Date(task.started.toDate()).toDateString();
   }
 
   handleRowClick() {
+    let started;
     const { task, firestore } = this.props;
-    const isActive = !this.state.isActive;
-    const started = isActive ? new Date() : null;
-    const startedDateStr = isActive ? started.toDateString() : null;
+    if (this.isActive()) {
+      // stop the task
+      started = null;
+    } else {
+      // start the task
+      started = new Date();
+    }
 
     const taskUpdate = {
       started
@@ -39,7 +54,7 @@ class Task extends Component {
 
     firestore.update({ collection: 'tasks', doc: task.id }, taskUpdate);
 
-    this.setState({ isActive, started, startedDateStr });
+    this.setState({ started });
   }
 
   render() {
@@ -47,7 +62,7 @@ class Task extends Component {
 
     return (
       <div
-        className={'row' + (this.state.isActive ? ' bg-primary' : '')}
+        className={'row' + (this.isActive() ? ' bg-primary' : '')}
         onClick={this.handleRowClick}
       >
         <div className="col col-1" />
@@ -55,8 +70,8 @@ class Task extends Component {
         <div className="col col-3">
           <LoggedTime minutes={task.logged} />
         </div>
-        <div className="col col-2">{this.state.isActive ? 'ACTIVE' : 'NO'}</div>
-        <div className="col col-2">{this.state.startedDateStr}</div>
+        <div className="col col-2">{this.getTimeLoggedStr()}</div>
+        <div className="col col-2">{this.getStartedDateStr()}</div>
       </div>
     );
   }
