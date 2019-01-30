@@ -8,7 +8,33 @@ import LoadingScreen from './../LoadingScreen';
 import Task from './Task';
 
 class Tasks extends Component {
-  state = {};
+  state = {
+    // numActive: 0,
+    runningTasks: []
+  };
+
+  static getDerivedStateFromProps(props, state) {
+    const { tasks } = props;
+    // let numActive = 0;
+    let runningTasks = [];
+
+    // Any child task needs the ability to stop all other tasks before it can be started.
+    //  Since the child can not call the parent and use it's scope, we pass down
+    //  all running tasks so that the child can manipulate them.
+
+    if (tasks) {
+      tasks.forEach(task => {
+        if (task.started !== null) {
+          // numActive++;
+          runningTasks.push(task);
+        }
+      });
+      // return { numActive, runningTasks };
+      return { runningTasks };
+    }
+
+    return null;
+  }
 
   render() {
     const { tasks } = this.props;
@@ -28,7 +54,7 @@ class Tasks extends Component {
       */
 
       return (
-        <div id="task-list" className="container mt-3 mb-5">
+        <div id="task-list" className="container text-left mt-3 mb-5">
           <div className="row text-secondary" id="row-header">
             <div className="col col-1" />
             <div className="col col-4">
@@ -47,7 +73,12 @@ class Tasks extends Component {
             <div className="col col-2" />
           </div>
           {tasks.map(task => (
-            <Task key={task.id} task={task} />
+            <Task
+              key={task.id}
+              task={task}
+              numActive={this.state.numActive}
+              runningTasks={this.state.runningTasks}
+            />
           ))}
         </div>
       );
