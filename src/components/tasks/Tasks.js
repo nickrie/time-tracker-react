@@ -36,12 +36,12 @@ class Tasks extends Component {
             </div>
             <div className="col col-3 text-right">
               <h5>
-                <span className="d-none d-md-inline">Time </span>Logged
+                <span className="d-none d-lg-inline">Time </span>Logged
               </h5>
             </div>
             <div className="col col-2">
               <h5>
-                Last<span className="d-none d-md-inline"> Active</span>
+                Last<span className="d-none d-lg-inline"> Active</span>
               </h5>
             </div>
             <div className="col col-2" />

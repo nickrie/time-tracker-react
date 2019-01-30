@@ -9,7 +9,7 @@ export default class LoggedTime extends Component {
     mins = minutes % 60;
 
     if (minutes >= 60) {
-      hrs = minutes / 60;
+      hrs = Math.E(minutes / 60);
     }
 
     return (
