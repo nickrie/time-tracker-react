@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { firestoreConnect } from 'react-redux-firebase';
+import Moment from 'moment';
 
 import AddTask from './../tasks/AddTask';
 import EditTask from './../tasks/EditTask';
@@ -35,6 +36,23 @@ class Dashboard extends Component {
     }
   }
 
+  // TODO: this doesn't mutate state or props so it can be a normal library function
+  getActiveMinutes(task) {
+    let activeMinutes = 0;
+
+    if (task.started !== null) {
+      const a = Moment(new Date());
+      const b = Moment(task.started.toDate());
+      const seconds = a.diff(b, 'seconds');
+      // we only start adding time if 5 seconds have elapsed, see task.js::stopTask()
+      if (seconds >= 5) {
+        activeMinutes = Math.ceil(seconds / 60);
+      }
+    }
+
+    return activeMinutes;
+  }
+
   render() {
     let form = '';
 
@@ -46,6 +64,7 @@ class Dashboard extends Component {
           taskId={this.state.editTaskId}
           cancelEdit={this.cancelEdit}
           deleteTask={this.deleteTask}
+          getActiveMinutes={this.getActiveMinutes}
         />
       );
     }

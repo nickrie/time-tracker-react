@@ -5,28 +5,45 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 
 import LoadingScreen from './../LoadingScreen';
+import { displayMinutes } from './../../display';
 
 class EditTask extends Component {
   state = {
     loadedTaskId: false,
     name: '',
     hours: 0,
-    minutes: 0
+    minutes: 0,
+    activeMinutes: 0
   };
 
   constructor(props) {
     super(props);
+    this.updateActiveMinutes = this.updateActiveMinutes.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleCancelClick = this.handleCancelClick.bind(this);
     this.handleDeleteClick = this.handleDeleteClick.bind(this);
     this.handleSubmitClick = this.handleSubmitClick.bind(this);
   }
 
+  updateActiveMinutes() {
+    const loadedTaskId = this.state.loadedTaskId;
+
+    if (loadedTaskId) {
+      const { task } = this.props;
+      this.setState({
+        activeMinutes: this.props.getActiveMinutes(task)
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.refreshTimer);
+  }
+
   componentDidUpdate() {
     const loadedTaskId = this.state.loadedTaskId;
 
     if (!loadedTaskId || loadedTaskId !== this.props.taskId) {
-      console.log('Loaded task to edit', this.props.taskId);
       const { task } = this.props;
       let hours = 0;
       let minutes = 0;
@@ -38,12 +55,21 @@ class EditTask extends Component {
         minutes = task.logged;
       }
 
+      if (this.refreshTimer) {
+        clearInterval(this.refreshTimer);
+      }
+
       this.setState({
         loadedTaskId: this.props.taskId,
         name: task.name,
         hours: hours,
-        minutes: minutes
+        minutes: minutes,
+        activeMinutes: this.props.getActiveMinutes(task)
       });
+      this.refreshTimer = setInterval(
+        this.updateActiveMinutes.bind(this),
+        5000
+      );
     }
   }
 
@@ -157,10 +183,13 @@ class EditTask extends Component {
               </div>
 
               <div className="row">
-                <div
-                  id="edit-help"
-                  className="col-md-4 text-light order-md-2"
-                />
+                <div id="edit-help" className="col-md-4 text-light order-md-2">
+                  {this.state.activeMinutes > 0
+                    ? 'NOTE: This does not include the current active time of ' +
+                      displayMinutes(this.state.activeMinutes) +
+                      '.'
+                    : ''}
+                </div>
                 <div className="col-md-8 order-md-1">
                   <button
                     onClick={this.handleSubmitClick}

@@ -126,12 +126,21 @@ class Task extends Component {
         className={
           'row row-task border-top p-2 align-items-center' +
           (this.isActive() ? ' bg-success' : '') +
-          (this.props.editTaskId === task.id ? ' bg-primary text-light' : '')
+          (!this.isActive() && this.props.editTaskId === task.id
+            ? ' bg-primary text-light'
+            : '')
         }
         onClick={this.handleRowClick}
       >
         <div className="col col-1" />
-        <div className="col col-4">{task.name}</div>
+        <div
+          className={
+            'col col-4' +
+            (this.props.editTaskId === task.id ? ' bg-primary text-light' : '')
+          }
+        >
+          {task.name}
+        </div>
         <div className="col col-3 text-right">
           <LoggedTime
             minutes={task.logged}

@@ -1,6 +1,8 @@
 import React from 'react';
 import moment from 'moment';
 
+import { displayMinutes } from './../../display';
+
 export default function LastActive(props) {
   const { isActive, last, now } = props;
   let long = '';
@@ -15,13 +17,7 @@ export default function LastActive(props) {
     let b = moment(last.toDate());
     let seconds = a.diff(b, 'seconds');
     let minutes = Math.ceil(seconds / 60);
-    let mins = 0;
-    let hrs = 0;
-    mins = minutes % 60;
-    if (minutes >= 60) {
-      hrs = Math.floor(minutes / 60);
-    }
-    short = (hrs > 0 ? hrs + 'h ' : '') + mins + 'm';
+    short = displayMinutes(minutes);
     // get long elapsed time str
     long = moment(last.toDate()).from(now);
   }
