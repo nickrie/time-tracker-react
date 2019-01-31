@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { firestoreConnect } from 'react-redux-firebase';
 import Moment from 'moment';
 
 import LoggedTime from './LoggedTime';
 import LastActive from './LastActive';
+import TaskButtons from './TaskButtons';
 
 class Task extends Component {
   state = {
@@ -20,6 +22,7 @@ class Task extends Component {
   constructor(props) {
     super(props);
     this.handleRowClick = this.handleRowClick.bind(this);
+    this.handleDeleteClick = this.handleDeleteClick.bind(this);
   }
 
   componentDidMount() {
@@ -39,7 +42,7 @@ class Task extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    // If started date changed, we need to re-calculate the active minutes
+    // If 'started' changed, we need to re-calculate the active minutes
     if (this.props.task.started !== prevProps.task.started) {
       this.updateTimeValues();
     }
@@ -74,53 +77,27 @@ class Task extends Component {
     });
   }
 
-  // stop any running tasks
-  stopRunningTasks(tasks) {
-    const { firestore } = this.props;
-    let started, taskUpdate;
-
-    tasks.forEach(task => {
-      if (task.started !== null) {
-        // stop the task
-        started = null;
-
-        // calculate new logged time
-        //  don't update logged time or last date if it was active for less than 5 seconds
-        const a = Moment(new Date());
-        const b = Moment(task.started.toDate());
-        const seconds = a.diff(b, 'seconds');
-        const minutes = seconds < 5 ? 0 : Math.ceil(seconds / 60);
-
-        if (minutes > 0) {
-          const logged = parseInt(task.logged) + minutes;
-          const last = new Date();
-          taskUpdate = {
-            started,
-            last,
-            logged
-          };
-        } else {
-          taskUpdate = {
-            started
-          };
-        }
-        firestore.update({ collection: 'tasks', doc: task.id }, taskUpdate);
-        console.log(`STOPPED ${task.id}`);
-      }
-    });
-  }
-
-  handleRowClick() {
+  handleRowClick(e) {
     let started, taskUpdate;
     const { task, firestore } = this.props;
 
+    // bail if they clicked the edit/delete button/icon
+    if (
+      e.target.classList.contains('btn-edit') ||
+      e.target.classList.contains('fa-pencil-alt') ||
+      e.target.classList.contains('btn-delete') ||
+      e.target.classList.contains('fa-trash')
+    ) {
+      return;
+    }
+
     // If this task is active, stop it
     if (this.isActive()) {
-      this.stopRunningTasks(this.props.runningTasks);
+      this.props.stopRunningTasks();
     }
     // If we're starting this task stop any active task first
     else {
-      this.stopRunningTasks(this.props.runningTasks);
+      this.props.stopRunningTasks();
       // start the task
       started = new Date();
       taskUpdate = {
@@ -133,12 +110,23 @@ class Task extends Component {
     this.setState({ started });
   }
 
+  handleDeleteClick(taskId) {
+    const { firestore } = this.props;
+
+    firestore
+      .delete({ collection: 'tasks', doc: taskId })
+      .then(console.log('DELETED ' + taskId));
+  }
+
   render() {
     const { task } = this.props;
 
     return (
       <div
-        className={'row row-task' + (this.isActive() ? ' bg-success' : '')}
+        className={
+          'row row-task border-top p-2 align-items-center' +
+          (this.isActive() ? ' bg-success' : '')
+        }
         onClick={this.handleRowClick}
       >
         <div className="col col-1" />
@@ -156,10 +144,21 @@ class Task extends Component {
             now={this.state.nowDate}
           />
         </div>
-        <div className="col col-2" />
+        <div className="col col-2">
+          <TaskButtons
+            taskId={task.id}
+            onDeleteClick={this.handleDeleteClick}
+          />
+        </div>
       </div>
     );
   }
 }
+
+Task.propTypes = {
+  task: PropTypes.object.isRequired,
+  firestore: PropTypes.object.isRequired,
+  stopRunningTasks: PropTypes.func.isRequired
+};
 
 export default firestoreConnect()(Task);

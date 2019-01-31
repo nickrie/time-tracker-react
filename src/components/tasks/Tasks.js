@@ -3,37 +3,50 @@ import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { firestoreConnect, isLoaded, isEmpty } from 'react-redux-firebase';
+import Moment from 'moment';
 
 import LoadingScreen from './../LoadingScreen';
 import Task from './Task';
 
 class Tasks extends Component {
-  state = {
-    // numActive: 0,
-    runningTasks: []
-  };
+  constructor(props) {
+    super(props);
+    this.stopRunningTasks = this.stopRunningTasks.bind(this);
+  }
 
-  static getDerivedStateFromProps(props, state) {
-    const { tasks } = props;
-    // let numActive = 0;
-    let runningTasks = [];
+  stopRunningTasks() {
+    const { firestore } = this.props;
+    let started, taskUpdate;
 
-    // Any child task needs the ability to stop all other tasks before it can be started.
-    //  Since the child can not call the parent and use it's scope, we pass down
-    //  all running tasks so that the child can manipulate them.
+    this.props.tasks.forEach(task => {
+      if (task.started !== null) {
+        // stop the task
+        started = null;
 
-    if (tasks) {
-      tasks.forEach(task => {
-        if (task.started !== null) {
-          // numActive++;
-          runningTasks.push(task);
+        // calculate new logged time
+        //  don't update logged time or last date if it was active for less than 5 seconds
+        const a = Moment(new Date());
+        const b = Moment(task.started.toDate());
+        const seconds = a.diff(b, 'seconds');
+        const minutes = seconds < 5 ? 0 : Math.ceil(seconds / 60);
+
+        if (minutes > 0) {
+          const logged = parseInt(task.logged) + minutes;
+          const last = new Date();
+          taskUpdate = {
+            started,
+            last,
+            logged
+          };
+        } else {
+          taskUpdate = {
+            started
+          };
         }
-      });
-      // return { numActive, runningTasks };
-      return { runningTasks };
-    }
-
-    return null;
+        firestore.update({ collection: 'tasks', doc: task.id }, taskUpdate);
+        console.log(`STOPPED ${task.id}`);
+      }
+    });
   }
 
   render() {
@@ -42,17 +55,6 @@ class Tasks extends Component {
     if (!isLoaded(tasks)) {
       return <LoadingScreen />;
     } else if (!isEmpty(tasks)) {
-      /*
-      return (
-        <div>
-          tasks: {JSON.stringify(tasks)}
-          {tasks.map(task => (
-            <p>{task.name}</p>
-          ))}
-        </div>
-      );
-      */
-
       return (
         <div id="task-list" className="container text-left mt-3 mb-5">
           <div className="row text-secondary" id="row-header">
@@ -76,8 +78,7 @@ class Tasks extends Component {
             <Task
               key={task.id}
               task={task}
-              numActive={this.state.numActive}
-              runningTasks={this.state.runningTasks}
+              stopRunningTasks={this.stopRunningTasks}
             />
           ))}
         </div>
