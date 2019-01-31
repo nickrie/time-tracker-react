@@ -17,8 +17,9 @@ class EditTask extends Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
-    this.handleCancel = this.handleCancel.bind(this);
-    // this.handleSubmitChanges = this.handleSubmitChanges.bind(this);
+    this.handleCancelClick = this.handleCancelClick.bind(this);
+    this.handleDeleteClick = this.handleDeleteClick.bind(this);
+    this.handleSubmitClick = this.handleSubmitClick.bind(this);
   }
 
   componentDidUpdate() {
@@ -55,13 +56,16 @@ class EditTask extends Component {
     e.preventDefault();
   }
 
-  handleCancel(e) {
+  handleCancelClick(e) {
     this.props.cancelEdit();
     e.preventDefault();
   }
 
-  /* TODO, copied from AddTask for now
-  handleSubmitChanges(e) {
+  handleDeleteClick() {
+    this.props.deleteTask(this.props.taskId);
+  }
+
+  handleSubmitClick(e) {
     const { firestore } = this.props;
     const { name } = this.state;
     let { hours, minutes } = this.state;
@@ -86,19 +90,13 @@ class EditTask extends Component {
     };
 
     firestore.update(
-      { collection: 'tasks', doc: this.state.taskId },
+      { collection: 'tasks', doc: this.props.taskId },
       taskUpdate
     );
 
-    this.setState({
-      name: '',
-      hours: 0,
-      minutes: 0
-    });
-
+    this.props.cancelEdit();
     e.preventDefault();
   }
-  */
 
   render() {
     const { task } = this.props;
@@ -165,18 +163,21 @@ class EditTask extends Component {
                 />
                 <div className="col-md-8 order-md-1">
                   <button
-                    onClick={this.handleSubmitChanges}
+                    onClick={this.handleSubmitClick}
                     className="btn btn-success mr-1 my-2 my-sm-0"
                   >
                     Submit Changes
                   </button>
                   <button
-                    onClick={this.handleCancel}
+                    onClick={this.handleCancelClick}
                     className="btn btn-warning mr-1 my-2 my-sm-0"
                   >
                     Cancel
                   </button>
-                  <button className="btn btn-danger mr-1 my-2 my-sm-0">
+                  <button
+                    onClick={this.handleDeleteClick}
+                    className="btn btn-danger mr-1 my-2 my-sm-0"
+                  >
                     Delete Task
                   </button>
                 </div>

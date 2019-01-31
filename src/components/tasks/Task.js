@@ -115,11 +115,7 @@ class Task extends Component {
   }
 
   handleDeleteClick(taskId) {
-    const { firestore } = this.props;
-
-    firestore
-      .delete({ collection: 'tasks', doc: taskId })
-      .then(console.log('DELETED ' + taskId));
+    this.props.deleteTask(taskId);
   }
 
   render() {

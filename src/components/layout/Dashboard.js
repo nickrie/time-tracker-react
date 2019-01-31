@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
+import { firestoreConnect } from 'react-redux-firebase';
 
 import AddTask from './../tasks/AddTask';
 import EditTask from './../tasks/EditTask';
 import Tasks from './../tasks/Tasks';
 
-export default class Dashboard extends Component {
+class Dashboard extends Component {
   state = {
     editTaskId: null
   };
@@ -13,6 +14,7 @@ export default class Dashboard extends Component {
     super(props);
     this.editTask = this.editTask.bind(this);
     this.cancelEdit = this.cancelEdit.bind(this);
+    this.deleteTask = this.deleteTask.bind(this);
   }
 
   editTask(taskId) {
@@ -23,6 +25,16 @@ export default class Dashboard extends Component {
     this.setState({ editTaskId: null });
   }
 
+  deleteTask(taskId) {
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      const { firestore } = this.props;
+      firestore.delete({ collection: 'tasks', doc: taskId }).then(() => {
+        console.log('DELETED ' + taskId);
+        this.cancelEdit();
+      });
+    }
+  }
+
   render() {
     let form = '';
 
@@ -30,15 +42,25 @@ export default class Dashboard extends Component {
       form = <AddTask />;
     } else {
       form = (
-        <EditTask taskId={this.state.editTaskId} cancelEdit={this.cancelEdit} />
+        <EditTask
+          taskId={this.state.editTaskId}
+          cancelEdit={this.cancelEdit}
+          deleteTask={this.deleteTask}
+        />
       );
     }
 
     return (
       <div>
         {form}
-        <Tasks editTask={this.editTask} editTaskId={this.state.editTaskId} />
+        <Tasks
+          editTask={this.editTask}
+          editTaskId={this.state.editTaskId}
+          deleteTask={this.deleteTask}
+        />
       </div>
     );
   }
 }
+
+export default firestoreConnect()(Dashboard);

@@ -81,6 +81,7 @@ class Tasks extends Component {
               stopRunningTasks={this.stopRunningTasks}
               editTask={this.props.editTask}
               editTaskId={this.props.editTaskId}
+              deleteTask={this.props.deleteTask}
             />
           ))}
         </div>
