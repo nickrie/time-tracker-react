@@ -63,7 +63,6 @@ AppNavbar.propTypes = {
   auth: PropTypes.object.isRequired
 };
 
-// OPTION 1
 export default compose(
   firebaseConnect(),
   connect((state, props) => ({

@@ -1,20 +1,20 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { UserIsAuthenticated, UserIsNotAuthenticated } from './helpers/auth';
-
 import { Provider } from 'react-redux';
 
 // See http://docs.react-redux-firebase.com/history/v2.0.0/
 import { createStore, combineReducers, compose } from 'redux';
 import { reactReduxFirebase, firebaseReducer } from 'react-redux-firebase';
 import firebase from 'firebase';
-import 'firebase/firestore'; // <- needed if using firestore
+import 'firebase/firestore';
 import { reduxFirestore, firestoreReducer } from 'redux-firestore';
+
+import firebaseConfig from './secret/firebaseConfig';
 
 import AppNavbar from './components/layout/AppNavbar';
 import Login from './components/Login';
-import Tasks from './components/tasks/Tasks';
-import firebaseConfig from './secret/firebaseConfig';
+import Dashboard from './components/layout/Dashboard';
 
 // import { firebaseConnect } from 'react-redux-firebase';
 
@@ -70,7 +70,7 @@ class App extends Component {
                   path="/login"
                   component={UserIsNotAuthenticated(Login)}
                 />
-                <Route exact path="/" component={UserIsAuthenticated(Tasks)} />
+                <Route exact path="/" component={UserIsAuthenticated(Dashboard)} />
               </Switch>
             </div>
           </div>
