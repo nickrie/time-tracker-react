@@ -110,6 +110,10 @@ class Task extends Component {
     this.setState({ started });
   }
 
+  handleEditClick(taskId) {
+    this.props.editTask(taskId);
+  }
+
   handleDeleteClick(taskId) {
     const { firestore } = this.props;
 
@@ -125,7 +129,8 @@ class Task extends Component {
       <div
         className={
           'row row-task border-top p-2 align-items-center' +
-          (this.isActive() ? ' bg-success' : '')
+          (this.isActive() ? ' bg-success' : '') +
+          (this.props.editTaskId === task.id ? ' bg-primary text-light' : '')
         }
         onClick={this.handleRowClick}
       >
@@ -148,6 +153,8 @@ class Task extends Component {
           <TaskButtons
             taskId={task.id}
             onDeleteClick={this.handleDeleteClick}
+            editTask={this.props.editTask}
+            editTaskId={this.props.editTaskId}
           />
         </div>
       </div>

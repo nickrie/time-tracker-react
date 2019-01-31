@@ -3,7 +3,12 @@ import React, { Component } from 'react';
 export default class TaskButtons extends Component {
   constructor(props) {
     super(props);
+    this.handleEditClick = this.handleEditClick.bind(this);
     this.handleDeleteClick = this.handleDeleteClick.bind(this);
+  }
+
+  handleEditClick() {
+    this.props.editTask(this.props.taskId);
   }
 
   handleDeleteClick() {
@@ -11,22 +16,34 @@ export default class TaskButtons extends Component {
   }
 
   render() {
+    const disabled = this.props.editTaskId !== null ? true : false;
     return (
       <div>
         <div className="d-none d-lg-block">
-          <button type="button" className="btn btn-outline-dark btn-edit mr-1">
+          <button
+            type="button"
+            onClick={this.handleEditClick}
+            className="btn btn-outline-dark btn-edit mr-1"
+            disabled={disabled}
+          >
             <i className="fas fa-pencil-alt" />
           </button>
           <button
             type="button"
             onClick={this.handleDeleteClick}
             className="btn btn-outline-dark btn-delete"
+            disabled={disabled}
           >
             <i className="fas fa-trash" />
           </button>
         </div>
         <div className="d-block d-lg-none">
-          <button type="button" className="btn btn-outline-dark btn-edit">
+          <button
+            type="button"
+            onClick={this.handleEditClick}
+            className="btn btn-outline-dark btn-edit"
+            disabled={disabled}
+          >
             <i className="fas fa-pencil-alt" />
           </button>
         </div>

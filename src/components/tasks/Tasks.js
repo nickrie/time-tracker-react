@@ -79,6 +79,8 @@ class Tasks extends Component {
               key={task.id}
               task={task}
               stopRunningTasks={this.stopRunningTasks}
+              editTask={this.props.editTask}
+              editTaskId={this.props.editTaskId}
             />
           ))}
         </div>
