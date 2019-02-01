@@ -112,7 +112,7 @@ class Dashboard extends Component {
     }
 
     return (
-      <div>
+      <div className="mt-2">
         {form}
         <Tasks
           tasks={this.props.tasks}

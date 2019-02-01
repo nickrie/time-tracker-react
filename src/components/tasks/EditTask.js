@@ -133,7 +133,7 @@ class EditTask extends Component {
 
     if (task) {
       return (
-        <div className="container card bg-primary text-light">
+        <div className="card bg-primary text-light">
           <div className="card-body">
             <form className="ml-auto my-0" onSubmit={this.handleSubmit}>
               <div className="row">

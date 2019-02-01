@@ -85,7 +85,19 @@ class Tasks extends Component {
         </div>
       );
     } else {
-      return <div>Your task list is empty.</div>;
+      return (
+        <div className="container text-center text-secondary my-5">
+          <h1 className="display-4">Your task list is empty.</h1>
+          <p className="lead">Add a task above to get started!</p>
+          <p className="text-success">New tasks are started automatically.</p>
+          <p className="text-warning">Click a task to start/stop the timer.</p>
+          <p className="text-secondary">
+            Times are always rounded up to the nearest minute.
+            <br />A task must be active for at least 5 seconds for time to be
+            logged.
+          </p>
+        </div>
+      );
     }
   }
 }

@@ -63,7 +63,7 @@ class AddTask extends Component {
 
   render() {
     return (
-      <div className="container card bg-light">
+      <div className="card bg-light">
         <div className="card-body">
           <form className="ml-auto my-0" onSubmit={this.handleSubmit}>
             <div className="row">
