@@ -10,6 +10,11 @@ class AppNavbar extends Component {
     isAuthenticated: false
   };
 
+  constructor(props) {
+    super(props);
+    this.logout = this.logout.bind(this);
+  }
+
   static getDerivedStateFromProps(props, state) {
     const { auth } = props;
 
@@ -20,9 +25,16 @@ class AppNavbar extends Component {
     }
   }
 
+  logout() {
+    const { firebase } = this.props;
+    if (window.confirm('Are you sure you want to log out?')) {
+      firebase.auth().signOut();
+    }
+  }
+
   render() {
     const { isAuthenticated } = this.state;
-    const { auth, firebase } = this.props;
+    const { auth } = this.props;
 
     return (
       <div className="navbar sticky-top navbar-expand-md navbar-dark bg-primary">
@@ -40,15 +52,20 @@ class AppNavbar extends Component {
                 <b>{auth.email}</b>
               </li>
               <li className="nav-item">
-                <a
-                  href="#!"
-                  className="text-light"
-                  onClick={() => firebase.auth().signOut()}
-                >
+                <a href="#!" className="text-light" onClick={this.logout}>
                   Logout
                 </a>
               </li>
             </ul>
+          ) : (
+            ''
+          )}
+          {this.props.formHidden ? (
+            <div className="ml-3">
+              <a href="#!" onClick={this.props.showForm} className="text-light">
+                <i className="fas fa-arrow-down fa-2x" />
+              </a>
+            </div>
           ) : (
             ''
           )}

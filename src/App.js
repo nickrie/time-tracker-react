@@ -12,10 +12,8 @@ import { reduxFirestore, firestoreReducer } from 'redux-firestore';
 
 import firebaseConfig from './secret/firebaseConfig';
 
-import AppNavbar from './components/layout/AppNavbar';
 import Login from './components/Login';
-import Dashboard from './components/layout/Dashboard';
-import Footer from './components/layout/Footer';
+import Main from './components/Main';
 
 // import { firebaseConnect } from 'react-redux-firebase';
 
@@ -63,22 +61,14 @@ class App extends Component {
       <Provider store={store}>
         <Router>
           <div className="App">
-            <AppNavbar />
-            <div className="container">
-              <Switch>
-                <Route
-                  exact
-                  path="/login"
-                  component={UserIsNotAuthenticated(Login)}
-                />
-                <Route
-                  exact
-                  path="/"
-                  component={UserIsAuthenticated(Dashboard)}
-                />
-              </Switch>
-            </div>
-            <Footer />
+            <Switch>
+              <Route
+                exact
+                path="/login"
+                component={UserIsNotAuthenticated(Login)}
+              />
+              <Route exact path="/" component={UserIsAuthenticated(Main)} />
+            </Switch>
           </div>
         </Router>
       </Provider>

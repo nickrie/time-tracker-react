@@ -126,6 +126,15 @@ class AddTask extends Component {
                   Add Task
                 </button>
               </div>
+              <div className="col text-right">
+                <button
+                  className="btn btn-secondary"
+                  type="button"
+                  onClick={this.props.hideForm}
+                >
+                  <i className="fas fa-arrow-up" />
+                </button>
+              </div>
             </div>
           </form>
         </div>

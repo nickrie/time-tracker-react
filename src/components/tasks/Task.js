@@ -78,7 +78,6 @@ class Task extends Component {
   }
 
   handleRowClick(e) {
-    let started;
     const { task } = this.props;
 
     // bail if they clicked the edit/delete button/icon

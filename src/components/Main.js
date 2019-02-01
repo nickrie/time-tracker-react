@@ -4,12 +4,15 @@ import { connect } from 'react-redux';
 import { firestoreConnect } from 'react-redux-firebase';
 import Moment from 'moment';
 
-import AddTask from './../tasks/AddTask';
-import EditTask from './../tasks/EditTask';
-import Tasks from './../tasks/Tasks';
+import AppNavbar from './layout/AppNavbar';
+import AppFooter from './layout/AppFooter';
+import AddTask from './tasks/AddTask';
+import EditTask from './tasks/EditTask';
+import Tasks from './tasks/Tasks';
 
 class Dashboard extends Component {
   state = {
+    formHidden: false,
     editTaskId: null,
     startedTaskId: null,
     stoppedTaskId: null
@@ -17,6 +20,8 @@ class Dashboard extends Component {
 
   constructor(props) {
     super(props);
+    this.hideForm = this.hideForm.bind(this);
+    this.showForm = this.showForm.bind(this);
     this.editTask = this.editTask.bind(this);
     this.cancelEdit = this.cancelEdit.bind(this);
     this.deleteTask = this.deleteTask.bind(this);
@@ -25,7 +30,20 @@ class Dashboard extends Component {
     this.validateTaskInputs = this.validateTaskInputs.bind(this);
   }
 
+  hideForm() {
+    this.setState({
+      formHidden: true
+    });
+  }
+
+  showForm() {
+    this.setState({
+      formHidden: false
+    });
+  }
+
   editTask(taskId) {
+    this.showForm();
     this.setState({ editTaskId: taskId });
   }
 
@@ -178,10 +196,13 @@ class Dashboard extends Component {
   render() {
     let form = '';
 
-    if (this.state.editTaskId === null) {
+    if (this.state.formHidden) {
+      form = '';
+    } else if (this.state.editTaskId === null) {
       form = (
         <AddTask
           startTask={this.startTask}
+          hideForm={this.hideForm}
           validateTaskInputs={this.validateTaskInputs}
         />
       );
@@ -197,18 +218,25 @@ class Dashboard extends Component {
     }
 
     return (
-      <div className="mt-2">
-        {form}
-        <Tasks
-          tasks={this.props.tasks}
-          editTask={this.editTask}
-          editTaskId={this.state.editTaskId}
-          deleteTask={this.deleteTask}
-          startTask={this.startTask}
-          stopRunningTasks={this.stopRunningTasks}
-          startedTaskId={this.state.startedTaskId}
-          stoppedTaskId={this.state.stoppedTaskId}
+      <div className="main">
+        <AppNavbar
+          formHidden={this.state.formHidden}
+          showForm={this.showForm}
         />
+        <div className="container mt-2">
+          {form}
+          <Tasks
+            tasks={this.props.tasks}
+            editTask={this.editTask}
+            editTaskId={this.state.editTaskId}
+            deleteTask={this.deleteTask}
+            startTask={this.startTask}
+            stopRunningTasks={this.stopRunningTasks}
+            startedTaskId={this.state.startedTaskId}
+            stoppedTaskId={this.state.stoppedTaskId}
+          />
+        </div>
+        <AppFooter />
       </div>
     );
   }
