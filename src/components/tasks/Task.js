@@ -78,8 +78,8 @@ class Task extends Component {
   }
 
   handleRowClick(e) {
-    let started, taskUpdate;
-    const { task, firestore } = this.props;
+    let started;
+    const { task } = this.props;
 
     // bail if they clicked the edit/delete button/icon
     if (
@@ -91,20 +91,14 @@ class Task extends Component {
       return;
     }
 
+
     // If this task is active, stop it
     if (this.isActive()) {
       this.props.stopRunningTasks();
-    }
-    // If we're starting this task stop any active task first
-    else {
-      this.props.stopRunningTasks();
-      // start the task
-      started = new Date();
-      taskUpdate = {
-        started
-      };
-      firestore.update({ collection: 'tasks', doc: task.id }, taskUpdate);
-      console.log(`STARTED ${task.id}`);
+    } else {
+      // start the task (this also stops any other running tasks)
+      started = this.props.startTask(task);
+
     }
 
     this.setState({ started });
@@ -175,8 +169,7 @@ class Task extends Component {
 
 Task.propTypes = {
   task: PropTypes.object.isRequired,
-  firestore: PropTypes.object.isRequired,
-  stopRunningTasks: PropTypes.func.isRequired
+  firestore: PropTypes.object.isRequired
 };
 
 export default firestoreConnect()(Task);

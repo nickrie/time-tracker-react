@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { firestoreConnect } from 'react-redux-firebase';
+import Moment from 'moment';
 
 import AddTask from './../tasks/AddTask';
 import EditTask from './../tasks/EditTask';
@@ -17,6 +18,8 @@ class Dashboard extends Component {
     this.editTask = this.editTask.bind(this);
     this.cancelEdit = this.cancelEdit.bind(this);
     this.deleteTask = this.deleteTask.bind(this);
+    this.startTask = this.startTask.bind(this);
+    this.stopRunningTasks = this.stopRunningTasks.bind(this);
     this.validateTaskInputs = this.validateTaskInputs.bind(this);
   }
 
@@ -36,6 +39,57 @@ class Dashboard extends Component {
         this.cancelEdit();
       });
     }
+  }
+
+  startTask(task) {
+    const { firestore } = this.props;
+
+    // Stop any running tasks first
+    this.stopRunningTasks();
+
+    const started = new Date();
+    const taskUpdate = {
+      started
+    };
+    firestore.update({ collection: 'tasks', doc: task.id }, taskUpdate);
+    console.log(`STARTED ${task.id}`);
+
+    return started;
+  }
+
+  stopRunningTasks() {
+    const { firestore } = this.props;
+    let started, taskUpdate;
+
+    this.props.tasks.forEach(task => {
+      if (task.started !== null) {
+        // stop the task
+        started = null;
+
+        // calculate new logged time
+        //  don't update logged time or last date if it was active for less than 5 seconds
+        const a = Moment(new Date());
+        const b = Moment(task.started.toDate());
+        const seconds = a.diff(b, 'seconds');
+        const minutes = seconds < 5 ? 0 : Math.ceil(seconds / 60);
+
+        if (minutes > 0) {
+          const logged = parseInt(task.logged) + minutes;
+          const last = new Date();
+          taskUpdate = {
+            started,
+            last,
+            logged
+          };
+        } else {
+          taskUpdate = {
+            started
+          };
+        }
+        firestore.update({ collection: 'tasks', doc: task.id }, taskUpdate);
+        console.log(`STOPPED ${task.id}`);
+      }
+    });
   }
 
   validateTaskInputs(id, name, hours, minutes) {
@@ -99,7 +153,12 @@ class Dashboard extends Component {
     let form = '';
 
     if (this.state.editTaskId === null) {
-      form = <AddTask validateTaskInputs={this.validateTaskInputs} />;
+      form = (
+        <AddTask
+          startTask={this.startTask}
+          validateTaskInputs={this.validateTaskInputs}
+        />
+      );
     } else {
       form = (
         <EditTask
@@ -119,6 +178,8 @@ class Dashboard extends Component {
           editTask={this.editTask}
           editTaskId={this.state.editTaskId}
           deleteTask={this.deleteTask}
+          startTask={this.startTask}
+          stopRunningTasks={this.stopRunningTasks}
         />
       </div>
     );
@@ -135,7 +196,7 @@ export default compose(
     {
       collection: 'tasks',
       // orderBy: [['name', 'asc']],
-      orderBy: [['last', 'desc']],
+      orderBy: [['created', 'desc']],
       where: [['uid', '==', props.auth.uid]]
     }
   ])

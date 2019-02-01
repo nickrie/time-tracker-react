@@ -15,6 +15,7 @@ import firebaseConfig from './secret/firebaseConfig';
 import AppNavbar from './components/layout/AppNavbar';
 import Login from './components/Login';
 import Dashboard from './components/layout/Dashboard';
+import Footer from './components/layout/Footer';
 
 // import { firebaseConnect } from 'react-redux-firebase';
 
@@ -70,9 +71,14 @@ class App extends Component {
                   path="/login"
                   component={UserIsNotAuthenticated(Login)}
                 />
-                <Route exact path="/" component={UserIsAuthenticated(Dashboard)} />
+                <Route
+                  exact
+                  path="/"
+                  component={UserIsAuthenticated(Dashboard)}
+                />
               </Switch>
             </div>
+            <Footer />
           </div>
         </Router>
       </Provider>

@@ -43,17 +43,25 @@ class AddTask extends Component {
     hours = hours === null || hours === '' ? 0 : parseInt(hours);
     minutes = minutes === null || minutes === '' ? 0 : parseInt(minutes);
     const logged = parseInt(hours) * 60 + parseInt(minutes);
+    const created = new Date();
 
     const taskAdd = {
       uid: auth.uid,
+      created,
       name,
       logged,
       started: null,
       last: null
     };
 
-    firestore.add({ collection: 'tasks' }, taskAdd);
+    firestore.add({ collection: 'tasks' }, taskAdd).then(res => {
+      // append the doc id to the task object
+      taskAdd.id = res.id;
+      // start the new task
+      this.props.startTask(taskAdd);
+    });
 
+    // clear the form
     this.setState({
       name: '',
       hours: 0,

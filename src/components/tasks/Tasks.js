@@ -1,52 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { firestoreConnect, isLoaded, isEmpty } from 'react-redux-firebase';
-import Moment from 'moment';
 
 import LoadingScreen from './../LoadingScreen';
 import Task from './Task';
 
 class Tasks extends Component {
-  constructor(props) {
-    super(props);
-    this.stopRunningTasks = this.stopRunningTasks.bind(this);
-  }
-
-  stopRunningTasks() {
-    const { firestore } = this.props;
-    let started, taskUpdate;
-
-    this.props.tasks.forEach(task => {
-      if (task.started !== null) {
-        // stop the task
-        started = null;
-
-        // calculate new logged time
-        //  don't update logged time or last date if it was active for less than 5 seconds
-        const a = Moment(new Date());
-        const b = Moment(task.started.toDate());
-        const seconds = a.diff(b, 'seconds');
-        const minutes = seconds < 5 ? 0 : Math.ceil(seconds / 60);
-
-        if (minutes > 0) {
-          const logged = parseInt(task.logged) + minutes;
-          const last = new Date();
-          taskUpdate = {
-            started,
-            last,
-            logged
-          };
-        } else {
-          taskUpdate = {
-            started
-          };
-        }
-        firestore.update({ collection: 'tasks', doc: task.id }, taskUpdate);
-        console.log(`STOPPED ${task.id}`);
-      }
-    });
-  }
-
   render() {
     const { tasks } = this.props;
 
@@ -76,10 +35,11 @@ class Tasks extends Component {
             <Task
               key={task.id}
               task={task}
-              stopRunningTasks={this.stopRunningTasks}
               editTask={this.props.editTask}
               editTaskId={this.props.editTaskId}
               deleteTask={this.props.deleteTask}
+              startTask={this.props.startTask}
+              stopRunningTasks={this.props.stopRunningTasks}
             />
           ))}
         </div>
