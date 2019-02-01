@@ -33,7 +33,10 @@ footer {
     background-color: #eee;
   }
   /* TODO: use SaSS */
-  #task-list .row-task:hover .action-icon {
+  #task-list .row-task .hover-icon {
+    display: none;
+  }
+  #task-list .row-task:hover .hover-icon {
     display: block;
   }
 

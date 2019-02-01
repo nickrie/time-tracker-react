@@ -40,6 +40,8 @@ class Tasks extends Component {
               deleteTask={this.props.deleteTask}
               startTask={this.props.startTask}
               stopRunningTasks={this.props.stopRunningTasks}
+              startedTaskId={this.props.startedTaskId}
+              stoppedTaskId={this.props.stoppedTaskId}
             />
           ))}
         </div>

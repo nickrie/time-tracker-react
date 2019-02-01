@@ -10,7 +10,9 @@ import Tasks from './../tasks/Tasks';
 
 class Dashboard extends Component {
   state = {
-    editTaskId: null
+    editTaskId: null,
+    startedTaskId: null,
+    stoppedTaskId: null
   };
 
   constructor(props) {
@@ -51,10 +53,22 @@ class Dashboard extends Component {
     const taskUpdate = {
       started
     };
-    firestore.update({ collection: 'tasks', doc: task.id }, taskUpdate);
-    console.log(`STARTED ${task.id}`);
+    firestore
+      .update({ collection: 'tasks', doc: task.id }, taskUpdate)
+      .then(() => {
+        // console.log(`STARTED ${task.id}`);
+        this.setState({
+          startedTaskId: task.id
+        });
+        // clear startedTaskId after one second
+        setTimeout(() => {
+          this.setState({
+            startedTaskId: null
+          });
+        }, 1000);
+      });
 
-    return started;
+    return false;
   }
 
   stopRunningTasks() {
@@ -86,8 +100,20 @@ class Dashboard extends Component {
             started
           };
         }
-        firestore.update({ collection: 'tasks', doc: task.id }, taskUpdate);
-        console.log(`STOPPED ${task.id}`);
+        firestore
+          .update({ collection: 'tasks', doc: task.id }, taskUpdate)
+          .then(() => {
+            // console.log(`STOPPED ${task.id}`);
+            this.setState({
+              stoppedTaskId: task.id
+            });
+            // clear stoppedTaskId after one second
+            setTimeout(() => {
+              this.setState({
+                stoppedTaskId: null
+              });
+            }, 1000);
+          });
       }
     });
   }
@@ -180,6 +206,8 @@ class Dashboard extends Component {
           deleteTask={this.deleteTask}
           startTask={this.startTask}
           stopRunningTasks={this.stopRunningTasks}
+          startedTaskId={this.state.startedTaskId}
+          stoppedTaskId={this.state.stoppedTaskId}
         />
       </div>
     );

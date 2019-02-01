@@ -91,17 +91,13 @@ class Task extends Component {
       return;
     }
 
-
     // If this task is active, stop it
     if (this.isActive()) {
       this.props.stopRunningTasks();
     } else {
       // start the task (this also stops any other running tasks)
-      started = this.props.startTask(task);
-
+      this.props.startTask(task);
     }
-
-    this.setState({ started });
   }
 
   handleEditClick(taskId) {
@@ -115,24 +111,52 @@ class Task extends Component {
   render() {
     const { task } = this.props;
 
+    // set row classes
+
+    let rowClasses = 'row row-task border-top p-2 align-items-center';
+
+    if (this.props.stoppedTaskId === task.id) {
+      rowClasses += ' bg-danger';
+    } else if (this.isActive()) {
+      rowClasses += ' bg-success';
+    } else if (this.props.editTaskId === task.id) {
+      rowClasses += ' bg-primary text-light';
+    }
+
+    // set hover icon
+
+    let hoverIconClasses = '';
+
+    if (this.isActive()) {
+      hoverIconClasses += 'hover-icon fas fa-stop';
+    } else {
+      hoverIconClasses += 'hover-icon fas fa-play';
+    }
+
+    // set action icon if we just started/stopped a task
+
+    let actionIconClasses = '';
+
+    if (this.props.stoppedTaskId === task.id) {
+      actionIconClasses = 'fas fa-hand-paper';
+    } else if (this.props.startedTaskId === task.id) {
+      actionIconClasses = 'fas fa-rocket';
+    }
+
+    // set icon
+
+    let icon = '';
+    if (actionIconClasses !== '') {
+      icon = <i className={actionIconClasses} />;
+    } else {
+      icon = <i className={hoverIconClasses} />;
+    }
+
+    // output
+
     return (
-      <div
-        className={
-          'row row-task border-top p-2 align-items-center' +
-          (this.isActive() ? ' bg-success' : '') +
-          (!this.isActive() && this.props.editTaskId === task.id
-            ? ' bg-primary text-light'
-            : '')
-        }
-        onClick={this.handleRowClick}
-      >
-        <div className="col col-1">
-          <i
-            className={
-              'action-icon fas fa-' + (this.isActive() ? 'stop' : 'play')
-            }
-          />
-        </div>
+      <div className={rowClasses} onClick={this.handleRowClick}>
+        <div className="col col-1">{icon}</div>
         <div
           className={
             'col col-4' +
