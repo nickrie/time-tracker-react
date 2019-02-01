@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
-export default class TaskButtons extends Component {
+class TaskButtons extends Component {
   constructor(props) {
     super(props);
     this.handleEditClick = this.handleEditClick.bind(this);
@@ -52,3 +53,12 @@ export default class TaskButtons extends Component {
     );
   }
 }
+
+TaskButtons.propTypes = {
+  taskId: PropTypes.string.isRequired,
+  onDeleteClick: PropTypes.func.isRequired,
+  editTask: PropTypes.func.isRequired,
+  editTaskId: PropTypes.string
+};
+
+export default TaskButtons;

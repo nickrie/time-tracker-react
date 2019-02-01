@@ -1,9 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 
 import { displayMinutes } from './../../helpers/display';
 
-export default function LastActive(props) {
+function LastActive(props) {
   const { isActive, last, now } = props;
   let long = '';
   let short = '';
@@ -29,3 +30,11 @@ export default function LastActive(props) {
     </div>
   );
 }
+
+LastActive.propTypes = {
+  isActive: PropTypes.bool.isRequired,
+  last: PropTypes.object,
+  now: PropTypes.object
+};
+
+export default LastActive;

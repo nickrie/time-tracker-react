@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { firestoreConnect } from 'react-redux-firebase';
@@ -10,7 +11,7 @@ import AddTask from './tasks/AddTask';
 import EditTask from './tasks/EditTask';
 import Tasks from './tasks/Tasks';
 
-class Dashboard extends Component {
+class Main extends Component {
   state = {
     formHidden: false,
     editTaskId: null,
@@ -228,10 +229,10 @@ class Dashboard extends Component {
           <Tasks
             tasks={this.props.tasks}
             editTask={this.editTask}
-            editTaskId={this.state.editTaskId}
             deleteTask={this.deleteTask}
             startTask={this.startTask}
             stopRunningTasks={this.stopRunningTasks}
+            editTaskId={this.state.editTaskId}
             startedTaskId={this.state.startedTaskId}
             stoppedTaskId={this.state.stoppedTaskId}
           />
@@ -241,6 +242,11 @@ class Dashboard extends Component {
     );
   }
 }
+
+Main.propTypes = {
+  firestore: PropTypes.object.isRequired,
+  tasks: PropTypes.array
+};
 
 // export default firestoreConnect()(Dashboard);
 export default compose(
@@ -256,4 +262,4 @@ export default compose(
       where: [['uid', '==', props.auth.uid]]
     }
   ])
-)(Dashboard);
+)(Main);

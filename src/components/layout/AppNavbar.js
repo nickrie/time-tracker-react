@@ -48,7 +48,7 @@ class AppNavbar extends Component {
           </a>
           {isAuthenticated ? (
             <ul className="navbar-nav ml-auto">
-              <li className="nav-item text-light mr-3">
+              <li className="nav-item text-light mr-3 d-none d-md-block">
                 <b>{auth.email}</b>
               </li>
               <li className="nav-item">
@@ -77,7 +77,9 @@ class AppNavbar extends Component {
 
 AppNavbar.propTypes = {
   firebase: PropTypes.object.isRequired,
-  auth: PropTypes.object.isRequired
+  auth: PropTypes.object.isRequired,
+  formHidden: PropTypes.bool.isRequired,
+  showForm: PropTypes.func.isRequired
 };
 
 export default compose(

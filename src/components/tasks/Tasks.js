@@ -36,10 +36,10 @@ class Tasks extends Component {
               key={task.id}
               task={task}
               editTask={this.props.editTask}
-              editTaskId={this.props.editTaskId}
               deleteTask={this.props.deleteTask}
               startTask={this.props.startTask}
               stopRunningTasks={this.props.stopRunningTasks}
+              editTaskId={this.props.editTaskId}
               startedTaskId={this.props.startedTaskId}
               stoppedTaskId={this.props.stoppedTaskId}
             />
@@ -68,7 +68,12 @@ Tasks.propTypes = {
   firestore: PropTypes.object.isRequired,
   tasks: PropTypes.array,
   editTask: PropTypes.func.isRequired,
-  deleteTask: PropTypes.func.isRequired
+  deleteTask: PropTypes.func.isRequired,
+  startTask: PropTypes.func.isRequired,
+  stopRunningTasks: PropTypes.func.isRequired,
+  editTaskId: PropTypes.string,
+  startedTaskId: PropTypes.string,
+  stoppedTaskId: PropTypes.string
 };
 
 export default firestoreConnect()(Tasks);

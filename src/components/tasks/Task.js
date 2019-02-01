@@ -14,7 +14,7 @@ class Task extends Component {
     // null indicates it has never run, a timestamp indicates when it last ran
     last: null,
     // # of minutes the task has been active
-    activeMinutes: null,
+    activeMinutes: 0,
     // current date to use for calculating last active, updated via setInterval to force the display change
     nowDate: null
   };
@@ -192,7 +192,14 @@ class Task extends Component {
 
 Task.propTypes = {
   task: PropTypes.object.isRequired,
-  firestore: PropTypes.object.isRequired
+  firestore: PropTypes.object.isRequired,
+  editTask: PropTypes.func.isRequired,
+  deleteTask: PropTypes.func.isRequired,
+  startTask: PropTypes.func.isRequired,
+  stopRunningTasks: PropTypes.func.isRequired,
+  editTaskId: PropTypes.string,
+  startedTaskId: PropTypes.string,
+  stoppedTaskId: PropTypes.string
 };
 
 export default firestoreConnect()(Task);
