@@ -5,7 +5,8 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 
 import LoadingScreen from './../LoadingScreen';
-import { displayMinutes } from './../../display';
+import { displayMinutes } from './../../helpers/display';
+import { getActiveMinutes } from './../../helpers/activeMinutes';
 
 class EditTask extends Component {
   state = {
@@ -31,7 +32,7 @@ class EditTask extends Component {
     if (loadedTaskId) {
       const { task } = this.props;
       this.setState({
-        activeMinutes: this.props.getActiveMinutes(task)
+        activeMinutes: getActiveMinutes(task)
       });
     }
   }
@@ -64,7 +65,7 @@ class EditTask extends Component {
         name: task.name,
         hours: hours,
         minutes: minutes,
-        activeMinutes: this.props.getActiveMinutes(task)
+        activeMinutes: getActiveMinutes(task)
       });
       this.refreshTimer = setInterval(
         this.updateActiveMinutes.bind(this),
@@ -83,8 +84,8 @@ class EditTask extends Component {
   }
 
   handleCancelClick(e) {
-    this.props.cancelEdit();
     e.preventDefault();
+    this.props.cancelEdit();
   }
 
   handleDeleteClick() {
@@ -92,19 +93,23 @@ class EditTask extends Component {
   }
 
   handleSubmitClick(e) {
+    e.preventDefault();
+
     const { firestore } = this.props;
     const { name } = this.state;
     let { hours, minutes } = this.state;
 
-    // TODO: add enhanced error checking/handling
-    if (name.trim() === '') {
-      alert('NAME is required');
+    const check = this.props.validateTaskInputs(
+      this.props.taskId,
+      name,
+      hours,
+      minutes
+    );
+
+    if (check.error) {
+      alert(check.msg);
       return;
     }
-
-    // TODO: check for dup task name
-
-    // TODO: check hours/minutes are positive integers and minutes between 0-59
 
     hours = hours === null || hours === '' ? 0 : parseInt(hours);
     minutes = minutes === null || minutes === '' ? 0 : parseInt(minutes);
@@ -121,7 +126,6 @@ class EditTask extends Component {
     );
 
     this.props.cancelEdit();
-    e.preventDefault();
   }
 
   render() {
@@ -133,7 +137,7 @@ class EditTask extends Component {
           <div className="card-body">
             <form className="ml-auto my-0" onSubmit={this.handleSubmit}>
               <div className="row">
-                <div className="form-group col-md-8">
+                <div className="form-group col-md-6 col-lg-8">
                   <input
                     name="name"
                     className="form-control mr-sm-2"
@@ -144,7 +148,7 @@ class EditTask extends Component {
                     onChange={this.handleChange}
                   />
                 </div>
-                <div className="form-group col-md-2">
+                <div className="form-group col-md-3 col-lg-2">
                   <div className="input-group">
                     <input
                       name="hours"
@@ -162,7 +166,7 @@ class EditTask extends Component {
                     </div>
                   </div>
                 </div>
-                <div className="form-group col-md-2">
+                <div className="form-group col-md-3 col-lg-2">
                   <div className="input-group">
                     <input
                       name="minutes"
@@ -183,14 +187,14 @@ class EditTask extends Component {
               </div>
 
               <div className="row">
-                <div id="edit-help" className="col-md-4 text-light order-md-2">
+                <div id="edit-help" className="col-md-5 col-lg-4 text-light order-md-2">
                   {this.state.activeMinutes > 0
                     ? 'NOTE: This does not include the current active time of ' +
                       displayMinutes(this.state.activeMinutes) +
                       '.'
                     : ''}
                 </div>
-                <div className="col-md-8 order-md-1">
+                <div className="col-md-7 col-lg-8 order-md-1">
                   <button
                     onClick={this.handleSubmitClick}
                     className="btn btn-success mr-1 my-2 my-sm-0"

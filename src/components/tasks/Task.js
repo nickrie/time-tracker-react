@@ -132,7 +132,13 @@ class Task extends Component {
         }
         onClick={this.handleRowClick}
       >
-        <div className="col col-1" />
+        <div className="col col-1">
+          <i
+            className={
+              'action-icon fas fa-' + (this.isActive() ? 'stop' : 'play')
+            }
+          />
+        </div>
         <div
           className={
             'col col-4' +

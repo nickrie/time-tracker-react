@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 
-import { displayMinutes } from './../../display';
+import { displayMinutes } from './../../helpers/display';
 
 export default function LastActive(props) {
   const { isActive, last, now } = props;

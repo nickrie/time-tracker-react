@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
 import { firestoreConnect } from 'react-redux-firebase';
-import Moment from 'moment';
 
 import AddTask from './../tasks/AddTask';
 import EditTask from './../tasks/EditTask';
@@ -16,6 +17,7 @@ class Dashboard extends Component {
     this.editTask = this.editTask.bind(this);
     this.cancelEdit = this.cancelEdit.bind(this);
     this.deleteTask = this.deleteTask.bind(this);
+    this.validateTaskInputs = this.validateTaskInputs.bind(this);
   }
 
   editTask(taskId) {
@@ -36,35 +38,75 @@ class Dashboard extends Component {
     }
   }
 
-  // TODO: this doesn't mutate state or props so it can be a normal library function
-  getActiveMinutes(task) {
-    let activeMinutes = 0;
+  validateTaskInputs(id, name, hours, minutes) {
+    const { tasks } = this.props;
 
-    if (task.started !== null) {
-      const a = Moment(new Date());
-      const b = Moment(task.started.toDate());
-      const seconds = a.diff(b, 'seconds');
-      // we only start adding time if 5 seconds have elapsed, see task.js::stopTask()
-      if (seconds >= 5) {
-        activeMinutes = Math.ceil(seconds / 60);
-      }
+    // Ensure name is not empty
+    if (name.trim() === '') {
+      return {
+        error: true,
+        focus: 'name',
+        msg: 'NAME is required.'
+      };
     }
 
-    return activeMinutes;
+    // Ensure another task with that name doesn't already exist
+    let nameExists = false;
+    tasks.forEach(task => {
+      if (task.name === name && task.id !== id) {
+        nameExists = true;
+      }
+    });
+    if (nameExists === true) {
+      return {
+        error: true,
+        focus: 'name',
+        msg: 'A task already exists with that name.'
+      };
+    }
+
+    // Check hours and minutes to ensure they are integer values of the expected size
+    hours = hours === null || hours === '' ? 0 : parseInt(hours);
+    minutes = minutes === null || minutes === '' ? 0 : parseInt(minutes);
+    if (hours < 0 || minutes < 0 || isNaN(hours) || isNaN(minutes)) {
+      return {
+        error: true,
+        focus: 'hours',
+        msg: 'Hours and minutes must be positive integer values.'
+      };
+    }
+
+    if (minutes >= 60) {
+      return {
+        error: true,
+        focus: 'minutes',
+        msg: 'Minutes must be under 60.'
+      };
+    }
+
+    if (hours >= 1000) {
+      return {
+        error: true,
+        focus: 'minutes',
+        msg: 'Hours should not exceed 1000.'
+      };
+    }
+
+    return { error: false };
   }
 
   render() {
     let form = '';
 
     if (this.state.editTaskId === null) {
-      form = <AddTask />;
+      form = <AddTask validateTaskInputs={this.validateTaskInputs} />;
     } else {
       form = (
         <EditTask
           taskId={this.state.editTaskId}
           cancelEdit={this.cancelEdit}
           deleteTask={this.deleteTask}
-          getActiveMinutes={this.getActiveMinutes}
+          validateTaskInputs={this.validateTaskInputs}
         />
       );
     }
@@ -73,6 +115,7 @@ class Dashboard extends Component {
       <div>
         {form}
         <Tasks
+          tasks={this.props.tasks}
           editTask={this.editTask}
           editTaskId={this.state.editTaskId}
           deleteTask={this.deleteTask}
@@ -82,4 +125,18 @@ class Dashboard extends Component {
   }
 }
 
-export default firestoreConnect()(Dashboard);
+// export default firestoreConnect()(Dashboard);
+export default compose(
+  connect((state, props) => ({
+    tasks: state.firestore.ordered.tasks,
+    auth: state.firebase.auth
+  })),
+  firestoreConnect(props => [
+    {
+      collection: 'tasks',
+      // orderBy: [['name', 'asc']],
+      orderBy: [['last', 'desc']],
+      where: [['uid', '==', props.auth.uid]]
+    }
+  ])
+)(Dashboard);

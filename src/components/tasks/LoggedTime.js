@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { displayMinutes } from '../../display';
+import { displayMinutes } from './../../helpers/display';
 
 export default function LoggedTime(props) {
   const { minutes, activeMinutes } = props;

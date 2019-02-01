@@ -22,19 +22,23 @@ class AddTask extends Component {
   }
 
   handleSubmit(e) {
+    e.preventDefault();
+
     const { firestore, auth } = this.props;
     const { name } = this.state;
     let { hours, minutes } = this.state;
 
-    // TODO: add enhanced error checking/handling
-    if (name.trim() === '') {
-      alert('NAME is required');
+    const check = this.props.validateTaskInputs(
+      this.props.taskId,
+      name,
+      hours,
+      minutes
+    );
+
+    if (check.error) {
+      alert(check.msg);
       return;
     }
-
-    // TODO: check for dup task name
-
-    // TODO: check hours/minutes are positive integers and minutes between 0-59
 
     hours = hours === null || hours === '' ? 0 : parseInt(hours);
     minutes = minutes === null || minutes === '' ? 0 : parseInt(minutes);
@@ -55,8 +59,6 @@ class AddTask extends Component {
       hours: 0,
       minutes: 0
     });
-
-    e.preventDefault();
   }
 
   render() {
@@ -65,7 +67,7 @@ class AddTask extends Component {
         <div className="card-body">
           <form className="ml-auto my-0" onSubmit={this.handleSubmit}>
             <div className="row">
-              <div className="form-group col-md-8">
+              <div className="form-group col-md-6 col-lg-8">
                 <input
                   name="name"
                   className="form-control mr-sm-2"
@@ -76,14 +78,12 @@ class AddTask extends Component {
                   onChange={this.handleChange}
                 />
               </div>
-              <div className="form-group col-md-2">
+              <div className="form-group col-md-3 col-lg-2">
                 <div className="input-group">
                   <input
                     name="hours"
                     className="form-control"
                     type="number"
-                    min="0"
-                    max="999"
                     placeholder="Hours"
                     autoComplete="off"
                     value={this.state.hours}
@@ -94,14 +94,12 @@ class AddTask extends Component {
                   </div>
                 </div>
               </div>
-              <div className="form-group col-md-2">
+              <div className="form-group col-md-3 col-lg-2">
                 <div className="input-group">
                   <input
                     name="minutes"
                     className="form-control"
                     type="number"
-                    min="0"
-                    max="59"
                     placeholder="Minutes"
                     autoComplete="off"
                     value={this.state.minutes}

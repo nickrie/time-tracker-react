@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { compose } from 'redux';
-import { connect } from 'react-redux';
 import { firestoreConnect, isLoaded, isEmpty } from 'react-redux-firebase';
 import Moment from 'moment';
 
@@ -94,19 +92,9 @@ class Tasks extends Component {
 
 Tasks.propTypes = {
   firestore: PropTypes.object.isRequired,
-  tasks: PropTypes.array
+  tasks: PropTypes.array,
+  editTask: PropTypes.func.isRequired,
+  deleteTask: PropTypes.func.isRequired
 };
 
-export default compose(
-  connect((state, props) => ({
-    tasks: state.firestore.ordered.tasks,
-    auth: state.firebase.auth
-  })),
-  firestoreConnect(props => [
-    {
-      collection: 'tasks',
-      orderBy: [['name', 'asc']],
-      where: [['uid', '==', props.auth.uid]]
-    }
-  ])
-)(Tasks);
+export default firestoreConnect()(Tasks);
