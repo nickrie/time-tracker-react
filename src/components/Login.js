@@ -17,7 +17,7 @@ class Login extends Component {
         firebase.auth.EmailAuthProvider.PROVIDER_ID
       ],
       callbacks: {
-        signInSuccess: () => false
+        signInSuccessWithAResult: () => false
       }
     };
 
