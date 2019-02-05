@@ -1,0 +1,2 @@
+body{min-height:100vh;position:relative;margin:0;padding-bottom:30px}.main{width:100vw;margin:0;padding:0}footer{position:absolute;bottom:0;width:100vw}.fa-stop{color:red}.fa-play{color:#18bc9c}.action-icon{display:none}@media (pointer:fine){#task-list .row-task:hover{background-color:#eee}#task-list .row-task .hover-icon{display:none}#task-list .row-task:hover .hover-icon{display:block}.btn-edit:hover:enabled{color:#00f}.btn-delete:hover:enabled{color:red}}
+/*# sourceMappingURL=main.5fc0d212.chunk.css.map */
