@@ -1,13 +1,13 @@
 {
-  "main.css": "/time-tracker-react/static/css/main.5fc0d212.chunk.css",
-  "main.js": "/time-tracker-react/static/js/main.a7b1db29.chunk.js",
-  "main.js.map": "/time-tracker-react/static/js/main.a7b1db29.chunk.js.map",
-  "static/js/1.800c2a08.chunk.js": "/time-tracker-react/static/js/1.800c2a08.chunk.js",
-  "static/js/1.800c2a08.chunk.js.map": "/time-tracker-react/static/js/1.800c2a08.chunk.js.map",
+  "main.css": "/time-tracker-react/static/css/main.78a146e6.chunk.css",
+  "main.js": "/time-tracker-react/static/js/main.0f26b279.chunk.js",
+  "main.js.map": "/time-tracker-react/static/js/main.0f26b279.chunk.js.map",
+  "static/js/1.1d0f475a.chunk.js": "/time-tracker-react/static/js/1.1d0f475a.chunk.js",
+  "static/js/1.1d0f475a.chunk.js.map": "/time-tracker-react/static/js/1.1d0f475a.chunk.js.map",
   "runtime~main.js": "/time-tracker-react/static/js/runtime~main.3b83c2bd.js",
   "runtime~main.js.map": "/time-tracker-react/static/js/runtime~main.3b83c2bd.js.map",
-  "static/css/main.5fc0d212.chunk.css.map": "/time-tracker-react/static/css/main.5fc0d212.chunk.css.map",
+  "static/css/main.78a146e6.chunk.css.map": "/time-tracker-react/static/css/main.78a146e6.chunk.css.map",
   "index.html": "/time-tracker-react/index.html",
-  "precache-manifest.5bdbfb98952d57cfbeec5ee0c9f3eaee.js": "/time-tracker-react/precache-manifest.5bdbfb98952d57cfbeec5ee0c9f3eaee.js",
+  "precache-manifest.701ceb4b3550edcd1c576de9a5727b53.js": "/time-tracker-react/precache-manifest.701ceb4b3550edcd1c576de9a5727b53.js",
   "service-worker.js": "/time-tracker-react/service-worker.js"
 }
