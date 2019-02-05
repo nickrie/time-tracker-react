@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { compose } from 'redux';
-import { connect } from 'react-redux';
-import { firebaseConnect } from 'react-redux-firebase';
+import { withFirebase } from 'react-redux-firebase';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 
 import AppNavbar from './layout/AppNavbar';
@@ -15,8 +13,6 @@ class Login extends Component {
       signInFlow: 'popup',
       signInOptions: [
         firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-        // firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-        // firebase.auth.TwitterAuthProvider.PROVIDER_ID,
         firebase.auth.GithubAuthProvider.PROVIDER_ID,
         firebase.auth.EmailAuthProvider.PROVIDER_ID
       ],
@@ -42,8 +38,4 @@ class Login extends Component {
   }
 }
 
-export default compose(
-  firebaseConnect(),
-  connect((state, props) => ({}))
-)(Login);
-// export default withFirebase(Login);
+export default withFirebase(Login);

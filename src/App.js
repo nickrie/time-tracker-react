@@ -29,7 +29,7 @@ const rrfConfig = {
 firebase.initializeApp(firebaseConfig); // <- new to v2.*.*
 
 // initialize firestore
-firebase.firestore(); // <- needed if using firestore
+firebase.firestore();
 
 // Add reduxReduxFirebase enhancer when making store creator
 const createStoreWithFirebase = compose(
@@ -40,7 +40,7 @@ const createStoreWithFirebase = compose(
 // Add firebase to reducers
 const rootReducer = combineReducers({
   firebase: firebaseReducer,
-  firestore: firestoreReducer // <- needed if using firestore
+  firestore: firestoreReducer
 });
 
 // Create store with reducers and initial state

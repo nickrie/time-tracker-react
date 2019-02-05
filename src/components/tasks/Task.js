@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { firestoreConnect } from 'react-redux-firebase';
-import Moment from 'moment';
 
 import LoggedTime from './LoggedTime';
 import LastActive from './LastActive';
 import TaskButtons from './TaskButtons';
+import { displayActiveMinutes } from './../../helpers/display';
 
 class Task extends Component {
   state = {
@@ -30,11 +30,14 @@ class Task extends Component {
     this.setState({
       started: task.started,
       last: task.last,
-      activeMinutes: this.getActiveMinutes(),
+      activeMinutes: displayActiveMinutes(task),
       nowDate: new Date()
     });
     // update our Time Logged and Last Active values every 5 seconds
-    this.refreshTimer = setInterval(this.updateTimeValues.bind(this), 5000);
+    this.refreshTimer = setInterval(
+      this.updateTimeValues.bind(this, task),
+      5000
+    );
   }
 
   componentWillUnmount() {
@@ -44,7 +47,7 @@ class Task extends Component {
   componentDidUpdate(prevProps) {
     // If 'started' changed, we need to re-calculate the active minutes
     if (this.props.task.started !== prevProps.task.started) {
-      this.updateTimeValues();
+      this.updateTimeValues(this.props.task);
     }
   }
 
@@ -53,26 +56,9 @@ class Task extends Component {
     return task.started !== null;
   }
 
-  getActiveMinutes() {
-    const { task } = this.props;
-    let activeMinutes = 0;
-
-    if (task.started !== null) {
-      const a = Moment(new Date());
-      const b = Moment(task.started.toDate());
-      const seconds = a.diff(b, 'seconds');
-      // we only start adding time if 5 seconds have elapsed, see task.js::stopTask()
-      if (seconds >= 5) {
-        activeMinutes = Math.ceil(seconds / 60);
-      }
-    }
-
-    return activeMinutes;
-  }
-
-  updateTimeValues() {
+  updateTimeValues(task) {
     this.setState({
-      activeMinutes: this.getActiveMinutes(),
+      activeMinutes: displayActiveMinutes(task),
       nowDate: new Date()
     });
   }

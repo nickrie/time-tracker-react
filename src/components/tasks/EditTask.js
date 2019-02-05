@@ -5,8 +5,7 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 
 import LoadingScreen from './../LoadingScreen';
-import { displayMinutes } from './../../helpers/display';
-import { getActiveMinutes } from './../../helpers/activeMinutes';
+import { displayMinutes, displayActiveMinutes } from './../../helpers/display';
 
 class EditTask extends Component {
   state = {
@@ -32,7 +31,7 @@ class EditTask extends Component {
     if (loadedTaskId) {
       const { task } = this.props;
       this.setState({
-        activeMinutes: getActiveMinutes(task)
+        activeMinutes: displayActiveMinutes(task)
       });
     }
   }
@@ -65,7 +64,7 @@ class EditTask extends Component {
         name: task.name,
         hours: hours,
         minutes: minutes,
-        activeMinutes: getActiveMinutes(task)
+        activeMinutes: displayActiveMinutes(task)
       });
       this.refreshTimer = setInterval(
         this.updateActiveMinutes.bind(this),
