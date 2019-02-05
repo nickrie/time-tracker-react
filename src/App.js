@@ -6,7 +6,9 @@ import { Provider } from 'react-redux';
 // See http://docs.react-redux-firebase.com/history/v2.0.0/
 import { createStore, combineReducers, compose } from 'redux';
 import { reactReduxFirebase, firebaseReducer } from 'react-redux-firebase';
-import firebase from 'firebase';
+import firebase from 'firebase/app';
+import 'firebase/app';
+import 'firebase/auth';
 import 'firebase/firestore';
 import { reduxFirestore, firestoreReducer } from 'redux-firestore';
 
