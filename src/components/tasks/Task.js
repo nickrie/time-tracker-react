@@ -23,6 +23,7 @@ class Task extends Component {
     super(props);
     this.handleRowClick = this.handleRowClick.bind(this);
     this.handleDeleteClick = this.handleDeleteClick.bind(this);
+    this.updateTimeValues = this.updateTimeValues.bind(this);
   }
 
   componentDidMount() {
@@ -34,10 +35,7 @@ class Task extends Component {
       nowDate: new Date()
     });
     // update our Time Logged and Last Active values every 5 seconds
-    this.refreshTimer = setInterval(
-      this.updateTimeValues.bind(this, task),
-      5000
-    );
+    this.refreshTimer = setInterval(this.updateTimeValues, 5000);
   }
 
   componentWillUnmount() {
@@ -56,7 +54,8 @@ class Task extends Component {
     return task.started !== null;
   }
 
-  updateTimeValues(task) {
+  updateTimeValues() {
+    const { task } = this.props;
     this.setState({
       activeMinutes: displayActiveMinutes(task),
       nowDate: new Date()
