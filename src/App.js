@@ -11,6 +11,7 @@ import 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
 import { reduxFirestore, firestoreReducer } from 'redux-firestore';
+import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
 
 import firebaseConfig from './secret/firebaseConfig';
 
@@ -50,11 +51,7 @@ const initialState = {};
 const store = createStoreWithFirebase(
   rootReducer,
   initialState,
-  compose(
-    reactReduxFirebase(firebase),
-    // Enable the browser Redux devtools
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-  )
+  composeWithDevTools(reactReduxFirebase(firebase))
 );
 
 class App extends Component {
