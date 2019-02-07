@@ -24,21 +24,20 @@ footer {
   color: #18bc9c;
 }
 
-.action-icon {
-  display: none;
-}
-
 /* 
   hover actions should not occur on touch devices
   in order to prevent having to double click on mobile 
   to click buttons or start/stop a task 
 */
 
+.hover-icon {
+  display: none;
+}
+
 @media (pointer: fine) {
   #task-list .row-task:hover {
     background-color: #eee;
   }
-  /* TODO: use SaSS */
   #task-list .row-task .hover-icon {
     display: none;
   }
