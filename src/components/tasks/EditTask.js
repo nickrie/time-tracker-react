@@ -25,6 +25,8 @@ class EditTask extends Component {
     this.handleSubmitClick = this.handleSubmitClick.bind(this);
   }
 
+  // Update the activeMinutes state for the edit screen message indicating
+  //  that the logged time does not include active time
   updateActiveMinutes() {
     const loadedTaskId = this.state.loadedTaskId;
 
@@ -43,6 +45,7 @@ class EditTask extends Component {
   componentDidUpdate() {
     const loadedTaskId = this.state.loadedTaskId;
 
+    // If we're editing a new task
     if (!loadedTaskId || loadedTaskId !== this.props.taskId) {
       const { task } = this.props;
       let hours = 0;
@@ -59,6 +62,7 @@ class EditTask extends Component {
         clearInterval(this.refreshTimer);
       }
 
+      // Set state with task values
       this.setState({
         loadedTaskId: this.props.taskId,
         name: task.name,
@@ -66,6 +70,7 @@ class EditTask extends Component {
         minutes: minutes,
         activeMinutes: displayActiveMinutes(task)
       });
+      // Refresh active minutes every 5 seconds
       this.refreshTimer = setInterval(
         this.updateActiveMinutes.bind(this),
         5000
@@ -73,24 +78,28 @@ class EditTask extends Component {
     }
   }
 
+  // Input onchange handler
   handleChange(e) {
     this.setState({ [e.target.name]: e.target.value });
   }
 
-  // prevent the form from submitting
+  // Prevent the form from submitting
   handleSubmit(e) {
     e.preventDefault();
   }
 
+  // Cancel button handler
   handleCancelClick(e) {
     e.preventDefault();
     this.props.cancelEdit();
   }
 
+  // Delete button handler
   handleDeleteClick() {
     this.props.deleteTask(this.props.taskId);
   }
 
+  // Submit button handler
   handleSubmitClick(e) {
     e.preventDefault();
 
@@ -98,6 +107,7 @@ class EditTask extends Component {
     const { name } = this.state;
     let { hours, minutes } = this.state;
 
+    // Validate the inputs
     const check = this.props.validateTaskInputs(
       this.props.taskId,
       name,
@@ -105,10 +115,13 @@ class EditTask extends Component {
       minutes
     );
 
+    // If there was an error display it and prevent the update
     if (check.error) {
       alert(check.msg);
       return;
     }
+
+    // Otherwise build the object to update firestore
 
     hours = hours === null || hours === '' ? 0 : parseInt(hours);
     minutes = minutes === null || minutes === '' ? 0 : parseInt(minutes);
@@ -119,11 +132,13 @@ class EditTask extends Component {
       logged
     };
 
+    // Update firestore
     firestore.update(
       { collection: 'tasks', doc: this.props.taskId },
       taskUpdate
     );
 
+    // Update was successful, hide the edit form
     this.props.cancelEdit();
   }
 
@@ -186,7 +201,10 @@ class EditTask extends Component {
               </div>
 
               <div className="row">
-                <div id="edit-help" className="col-md-5 col-lg-4 text-light order-md-2">
+                <div
+                  id="edit-help"
+                  className="col-md-5 col-lg-4 text-light order-md-2"
+                >
                   {this.state.activeMinutes > 0
                     ? 'NOTE: This does not include the current active time of ' +
                       displayMinutes(this.state.activeMinutes) +

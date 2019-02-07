@@ -9,20 +9,19 @@ import { displayActiveMinutes } from './../../helpers/display';
 
 class Task extends Component {
   state = {
-    // null indicates not running, a timestamp indicates when it started running
+    // Null indicates not running, a timestamp indicates when it started running
     started: null,
-    // null indicates it has never run, a timestamp indicates when it last ran
+    // Null indicates it has never run, a timestamp indicates when it last ran
     last: null,
     // # of minutes the task has been active
     activeMinutes: 0,
-    // current date to use for calculating last active, updated via setInterval to force the display change
+    // Current date to use for calculating last active, updated via setInterval to force the display change
     nowDate: null
   };
 
   constructor(props) {
     super(props);
     this.handleRowClick = this.handleRowClick.bind(this);
-    this.handleDeleteClick = this.handleDeleteClick.bind(this);
     this.updateTimeValues = this.updateTimeValues.bind(this);
   }
 
@@ -34,7 +33,7 @@ class Task extends Component {
       activeMinutes: displayActiveMinutes(task),
       nowDate: new Date()
     });
-    // update our Time Logged and Last Active values every 5 seconds
+    // Update our Time Logged and Last Active values every 5 seconds
     this.refreshTimer = setInterval(this.updateTimeValues, 5000);
   }
 
@@ -49,11 +48,13 @@ class Task extends Component {
     }
   }
 
+  // Returns a boolean indicating whether or not the task is currently active
   isActive() {
     const { task } = this.props;
     return task.started !== null;
   }
 
+  // Updates state values used for calculating Time Logged and Last Active
   updateTimeValues() {
     const { task } = this.props;
     this.setState({
@@ -62,10 +63,12 @@ class Task extends Component {
     });
   }
 
+  // Row click handler
   handleRowClick(e) {
     const { task } = this.props;
 
-    // bail if they clicked the edit/delete button/icon
+    // Bail if they clicked the edit/delete button/icon
+    //  those actions have their own click handlers in TaskButtons
     if (
       e.target.classList.contains('btn-edit') ||
       e.target.classList.contains('fa-pencil-alt') ||
@@ -84,18 +87,10 @@ class Task extends Component {
     }
   }
 
-  handleEditClick(taskId) {
-    this.props.editTask(taskId);
-  }
-
-  handleDeleteClick(taskId) {
-    this.props.deleteTask(taskId);
-  }
-
   render() {
     const { task } = this.props;
 
-    // set row classes
+    // Set row classes
 
     let rowClasses = 'row row-task border-top p-2 align-items-center';
 
@@ -107,7 +102,7 @@ class Task extends Component {
       rowClasses += ' bg-primary text-light';
     }
 
-    // set hover icon
+    // Set row hover icon
 
     let hoverIconClasses = '';
 
@@ -117,7 +112,7 @@ class Task extends Component {
       hoverIconClasses += 'hover-icon fas fa-play';
     }
 
-    // set action icon if we just started/stopped a task
+    // Set row action icon if we just started/stopped a task
 
     let actionIconClasses = '';
 
@@ -127,7 +122,7 @@ class Task extends Component {
       actionIconClasses = 'fas fa-rocket';
     }
 
-    // set icon
+    // Build icon tag
 
     let icon = '';
     if (actionIconClasses !== '') {
@@ -135,8 +130,6 @@ class Task extends Component {
     } else {
       icon = <i className={hoverIconClasses} />;
     }
-
-    // output
 
     return (
       <div className={rowClasses} onClick={this.handleRowClick}>
@@ -165,7 +158,7 @@ class Task extends Component {
         <div className="col col-2">
           <TaskButtons
             taskId={task.id}
-            onDeleteClick={this.handleDeleteClick}
+            deleteTask={this.props.deleteTask}
             editTask={this.props.editTask}
             editTaskId={this.props.editTaskId}
           />

@@ -17,10 +17,12 @@ class AddTask extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  // Form input onchange handler
   handleChange(e) {
     this.setState({ [e.target.name]: e.target.value });
   }
 
+  // Submit button handler
   handleSubmit(e) {
     e.preventDefault();
 
@@ -28,6 +30,7 @@ class AddTask extends Component {
     const { name } = this.state;
     let { hours, minutes } = this.state;
 
+    // Validate the inputs
     const check = this.props.validateTaskInputs(
       this.props.taskId,
       name,
@@ -35,10 +38,13 @@ class AddTask extends Component {
       minutes
     );
 
+    // If there was an error display it and prevent adding the task
     if (check.error) {
       alert(check.msg);
       return;
     }
+
+    // Otherwise build the object to add the task in firestore
 
     hours = hours === null || hours === '' ? 0 : parseInt(hours);
     minutes = minutes === null || minutes === '' ? 0 : parseInt(minutes);
@@ -54,14 +60,15 @@ class AddTask extends Component {
       last: null
     };
 
+    // Insert in firestore
     firestore.add({ collection: 'tasks' }, taskAdd).then(res => {
-      // append the doc id to the task object
+      // Append the doc id to the task object
       taskAdd.id = res.id;
-      // start the new task
+      // Start the new task
       this.props.startTask(taskAdd);
     });
 
-    // clear the form
+    // Add was successful, clear the form
     this.setState({
       name: '',
       hours: 0,

@@ -31,55 +31,63 @@ class Main extends Component {
     this.validateTaskInputs = this.validateTaskInputs.bind(this);
   }
 
+  // Hide the add/edit form
   hideForm() {
     this.setState({
       formHidden: true
     });
   }
 
+  // Show the add/edit form
   showForm() {
     this.setState({
       formHidden: false
     });
   }
 
+  // Edit a task
   editTask(taskId) {
     this.showForm();
     this.setState({ editTaskId: taskId });
   }
 
+  // Cancel the edit form
   cancelEdit() {
     this.setState({ editTaskId: null });
   }
 
+  // Delete a task
   deleteTask(taskId) {
     if (window.confirm('Are you sure you want to delete this task?')) {
       const { firestore } = this.props;
       firestore.delete({ collection: 'tasks', doc: taskId }).then(() => {
-        console.log('DELETED ' + taskId);
         this.cancelEdit();
       });
     }
   }
 
+  // Start a task timer
   startTask(task) {
     const { firestore } = this.props;
 
     // Stop any running tasks first
     this.stopRunningTasks();
 
+    // Build the update object
     const started = new Date();
     const taskUpdate = {
       started
     };
+
+    // Update firestore
     firestore
       .update({ collection: 'tasks', doc: task.id }, taskUpdate)
       .then(() => {
-        // console.log(`STARTED ${task.id}`);
+        // Mark this task id as started for the action icon
         this.setState({
           startedTaskId: task.id
         });
-        // clear startedTaskId after one second
+        // Clear startedTaskId after one second
         setTimeout(() => {
           this.setState({
             startedTaskId: null
@@ -90,23 +98,28 @@ class Main extends Component {
     return false;
   }
 
+  // Stop all running task timers
+  //  NOTE: although the app limits one running app at a time,
+  //    updating a record at firestore could cause more than one
+  //    to be running, so assume more than one could be running.
   stopRunningTasks() {
     const { firestore } = this.props;
     let started, taskUpdate;
 
     this.props.tasks.forEach(task => {
       if (task.started !== null) {
-        // stop the task
+        // Stop the task
         started = null;
 
-        // calculate new logged time
-        //  don't update logged time or last date if it was active for less than 5 seconds
+        // Calculate new logged time
+        //  Don't update logged time or last date if it was active for less than 5 seconds
         const a = Moment(new Date());
         const b = Moment(task.started.toDate());
         const seconds = a.diff(b, 'seconds');
         const minutes = seconds < 5 ? 0 : Math.ceil(seconds / 60);
 
         if (minutes > 0) {
+          // Time was logged, stop the task and update logged time and last started
           const logged = parseInt(task.logged) + minutes;
           const last = new Date();
           taskUpdate = {
@@ -115,18 +128,20 @@ class Main extends Component {
             logged
           };
         } else {
+          // No time was logged, so just stop the task
           taskUpdate = {
             started
           };
         }
+        // Update firestore
         firestore
           .update({ collection: 'tasks', doc: task.id }, taskUpdate)
           .then(() => {
-            // console.log(`STOPPED ${task.id}`);
+            // Mark this task id as stopped for the action icon
             this.setState({
               stoppedTaskId: task.id
             });
-            // clear stoppedTaskId after one second
+            // Clear stoppedTaskId after one second
             setTimeout(() => {
               this.setState({
                 stoppedTaskId: null
@@ -137,6 +152,7 @@ class Main extends Component {
     });
   }
 
+  // Validate task form input values
   validateTaskInputs(id, name, hours, minutes) {
     const { tasks } = this.props;
 
@@ -175,6 +191,7 @@ class Main extends Component {
       };
     }
 
+    // Ensure minutes value is valid
     if (minutes >= 60) {
       return {
         error: true,
@@ -183,6 +200,7 @@ class Main extends Component {
       };
     }
 
+    // Ensure a reasonable upper limit on hours
     if (hours >= 1000) {
       return {
         error: true,

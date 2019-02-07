@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { UserIsAuthenticated, UserIsNotAuthenticated } from './helpers/auth';
 import { Provider } from 'react-redux';
 
-// See http://docs.react-redux-firebase.com/history/v2.0.0/
+// Firebase configuration, See http://docs.react-redux-firebase.com/history/v2.0.0/
 import { createStore, combineReducers, compose } from 'redux';
 import { reactReduxFirebase, firebaseReducer } from 'react-redux-firebase';
 import firebase from 'firebase/app';

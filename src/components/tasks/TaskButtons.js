@@ -13,7 +13,7 @@ class TaskButtons extends Component {
   }
 
   handleDeleteClick() {
-    this.props.onDeleteClick(this.props.taskId);
+    this.props.deleteTask(this.props.taskId);
   }
 
   render() {
@@ -56,7 +56,7 @@ class TaskButtons extends Component {
 
 TaskButtons.propTypes = {
   taskId: PropTypes.string.isRequired,
-  onDeleteClick: PropTypes.func.isRequired,
+  deleteTask: PropTypes.func.isRequired,
   editTask: PropTypes.func.isRequired,
   editTaskId: PropTypes.string
 };

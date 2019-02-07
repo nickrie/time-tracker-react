@@ -10,8 +10,10 @@ class Tasks extends Component {
     const { tasks } = this.props;
 
     if (!isLoaded(tasks)) {
+      // Waiting for tasks to be loaded from firestore
       return <LoadingScreen />;
     } else if (!isEmpty(tasks)) {
+      // Tasks are loaded from firestore
       return (
         <div id="task-list" className="container text-left mt-3 mb-5">
           <div className="row text-secondary" id="row-header">
@@ -47,6 +49,7 @@ class Tasks extends Component {
         </div>
       );
     } else {
+      // Task list is empty
       return (
         <div className="container text-center text-secondary my-5">
           <h1 className="display-4">Your task list is empty.</h1>
