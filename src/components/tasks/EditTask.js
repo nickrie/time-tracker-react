@@ -18,7 +18,7 @@ function EditTask(props) {
 
   // Update the activeMinutes state for the edit screen message indicating
   //  that the logged time does not include active time
-  const updateActiveMinutes = () => {
+  const updateActiveMinutes = loadedTaskId => {
     if (loadedTaskId) {
       setActiveMinutes(displayActiveMinutes(props.task));
     }
@@ -41,24 +41,25 @@ function EditTask(props) {
         newMinutes = task.logged;
       }
 
-      if (refreshTimer) {
-        clearInterval(refreshTimer);
-      }
-
       // Set state with task values
       setLoadedTaskId(task.id);
       setName(task.name);
       setHours(newHours);
       setMinutes(newMinutes);
       setActiveMinutes(displayActiveMinutes(task));
-      // Refresh active minutes every 5 seconds
-      refreshTimer = setInterval(updateActiveMinutes, 5000);
+      // If we're editing an Active task,
+      //  Refresh active minutes every 5 seconds
+      if (task.started !== null) {
+        refreshTimer = setInterval(() => {
+          updateActiveMinutes(task.id);
+        }, 5000);
+      }
     }
 
     return function clear() {
       clearInterval(refreshTimer);
     };
-  });
+  }, [props.task]);
 
   // Input onchange handler
   //  TODO: re-use function in AddTask.js since it's the same
