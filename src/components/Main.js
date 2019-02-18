@@ -1,8 +1,4 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { compose } from 'redux';
-import { connect } from 'react-redux';
-import { firestoreConnect } from 'react-redux-firebase';
+import React, { useState, useEffect } from 'react';
 import Moment from 'moment';
 
 import AppNavbar from './layout/AppNavbar';
@@ -12,10 +8,23 @@ import EditTask from './tasks/EditTask';
 import Tasks from './tasks/Tasks';
 
 function Main(props) {
+  const [tasks, setTasks] = useState([]);
   const [formHidden, setFormHidden] = useState(false);
   const [editTaskId, setEditTaskId] = useState(null);
   const [startedTaskId, setStartedTaskId] = useState(null);
   const [stoppedTaskId, setStoppedTaskId] = useState(null);
+
+  useEffect(
+    () => {
+      // Get Tasks from LS
+      if (window.localStorage.getItem('tasks-v2') === null) {
+        setTasks([]);
+      } else {
+        setTasks(JSON.parse(window.localStorage.getItem('tasks-v2')));
+      }
+    },
+    [] // only run on mount/unmount
+  );
 
   // Hide the add/edit form
   const hideForm = () => {
@@ -38,20 +47,58 @@ function Main(props) {
     setEditTaskId(null);
   };
 
+  // Add a task
+  const addTask = task => {
+    console.log('add', task);
+    // Add the task
+    setTasks([task, ...tasks]);
+    // Update LS
+    window.localStorage.setItem('tasks-v2', JSON.stringify(tasks));
+    console.log('new val', tasks);
+    // Start the task
+    toggleTask(task);
+  };
+
+  // Update a task
+  const updateTask = task => {
+    // Find the index of this task
+    let idx = -1;
+    tasks.forEach((compareTask, compareIdx) => {
+      if (task.id === compareTask.id) {
+        idx = compareIdx;
+      }
+    });
+    if (idx !== -1) {
+      // Update the taskId
+      setTasks([...tasks.slice(0, idx), task, ...tasks.slice(idx + 1)]);
+      // Update LS
+      window.localStorage.setItem('tasks-v2', JSON.stringify(tasks));
+    }
+  };
+
   // Delete a task
-  const deleteTask = taskId => {
+  const deleteTask = id => {
     if (window.confirm('Are you sure you want to delete this task?')) {
-      const { firestore } = props;
-      firestore.delete({ collection: 'tasks', doc: taskId }).then(() => {
-        cancelEdit();
-      });
+      // Remove the task
+      setTasks(tasks.filter(task => task.id !== id));
+      // Update LS
+      window.localStorage.setItem('tasks-v2', JSON.stringify(tasks));
+      // If we deleted from the Edit Form, hide it
+      cancelEdit();
+    }
+  };
+
+  // Toggle a task
+  const toggleTask = task => {
+    if (task.started === null) {
+      startTask(task);
+    } else {
+      stopRunningTasks();
     }
   };
 
   // Start a task timer
   const startTask = task => {
-    const { firestore } = props;
-
     // Stop any running tasks first
     stopRunningTasks();
 
@@ -61,30 +108,26 @@ function Main(props) {
       started
     };
 
-    // Update firestore
-    firestore
-      .update({ collection: 'tasks', doc: task.id }, taskUpdate)
-      .then(() => {
-        // Mark this task id as started for the action icon
-        setStartedTaskId(task.id);
-        // Clear startedTaskId after one second
-        setTimeout(() => {
-          setStartedTaskId(null);
-        }, 1000);
-      });
+    // Update LS
+    updateTask(taskUpdate);
+    // Mark this task id as started for the action icon
+    setStartedTaskId(task.id);
+    // Clear startedTaskId after one second
+    setTimeout(() => {
+      setStartedTaskId(null);
+    }, 1000);
 
     return false;
   };
 
   // Stop all running task timers
   //  NOTE: although the app limits one running app at a time,
-  //    updating a record at firestore could cause more than one
-  //    to be running, so assume more than one could be running.
+  //    since the user is free to edit LocalStorage assume more
+  //    than one could be running.
   const stopRunningTasks = () => {
-    const { firestore } = props;
     let started, taskUpdate;
 
-    props.tasks.forEach(task => {
+    tasks.forEach(task => {
       if (task.started !== null) {
         // Stop the task
         started = null;
@@ -111,25 +154,19 @@ function Main(props) {
             started
           };
         }
-        // Update firestore
-        firestore
-          .update({ collection: 'tasks', doc: task.id }, taskUpdate)
-          .then(() => {
-            // Mark this task id as stopped for the action icon
-            setStoppedTaskId(task.id);
-            // Clear stoppedTaskId after one second
-            setTimeout(() => {
-              setStoppedTaskId(null);
-            }, 1000);
-          });
+
+        // Update the task
+        this.updateTask(taskUpdate);
+        // Mark this task id as stopped for the action icon
+        setStoppedTaskId(task.id);
+        // Clear startedTaskId after one second
+        setStoppedTaskId(null);
       }
     });
   };
 
   // Validate task form input values
   const validateTaskInputs = (id, name, hours, minutes) => {
-    const { tasks } = props;
-
     // Ensure name is not empty
     if (name.trim() === '') {
       return {
@@ -196,6 +233,7 @@ function Main(props) {
     form = (
       <AddTask
         startTask={startTask}
+        addTask={addTask}
         hideForm={hideForm}
         validateTaskInputs={validateTaskInputs}
       />
@@ -204,8 +242,10 @@ function Main(props) {
     form = (
       <EditTask
         taskId={editTaskId}
+        tasks={tasks}
         cancelEdit={cancelEdit}
         deleteTask={deleteTask}
+        updateTask={updateTask}
         validateTaskInputs={validateTaskInputs}
       />
     );
@@ -219,7 +259,7 @@ function Main(props) {
       <div className="container mt-2">
         {form}
         <Tasks
-          tasks={props.tasks}
+          tasks={tasks}
           editTask={editTask}
           deleteTask={deleteTask}
           startTask={startTask}
@@ -234,23 +274,4 @@ function Main(props) {
   );
 }
 
-Main.propTypes = {
-  firestore: PropTypes.object.isRequired,
-  tasks: PropTypes.array
-};
-
-// export default firestoreConnect()(Dashboard);
-export default compose(
-  connect((state, props) => ({
-    tasks: state.firestore.ordered.tasks,
-    auth: state.firebase.auth
-  })),
-  firestoreConnect(props => [
-    {
-      collection: 'tasks',
-      // orderBy: [['name', 'asc']],
-      orderBy: [['created', 'desc']],
-      where: [['uid', '==', props.auth.uid]]
-    }
-  ])
-)(Main);
+export default Main;

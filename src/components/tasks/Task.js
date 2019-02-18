@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { firestoreConnect } from 'react-redux-firebase';
 
 import LoggedTime from './LoggedTime';
 import LastActive from './LastActive';
@@ -139,7 +138,6 @@ function Task(props) {
 
 Task.propTypes = {
   task: PropTypes.object.isRequired,
-  firestore: PropTypes.object.isRequired,
   editTask: PropTypes.func.isRequired,
   deleteTask: PropTypes.func.isRequired,
   startTask: PropTypes.func.isRequired,
@@ -149,4 +147,4 @@ Task.propTypes = {
   stoppedTaskId: PropTypes.string
 };
 
-export default firestoreConnect()(Task);
+export default Task;

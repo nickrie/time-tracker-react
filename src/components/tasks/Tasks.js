@@ -1,18 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { firestoreConnect, isLoaded, isEmpty } from 'react-redux-firebase';
 
-import LoadingScreen from './../LoadingScreen';
 import Task from './Task';
 
 function Tasks(props) {
   const { tasks } = props;
 
-  if (!isLoaded(tasks)) {
-    // Waiting for tasks to be loaded from firestore
-    return <LoadingScreen />;
-  } else if (!isEmpty(tasks)) {
-    // Tasks are loaded from firestore
+  if (tasks.length) {
     return (
       <div id="task-list" className="container text-left mt-3 mb-5">
         <div className="row text-secondary" id="row-header">
@@ -66,7 +60,6 @@ function Tasks(props) {
 }
 
 Tasks.propTypes = {
-  firestore: PropTypes.object.isRequired,
   tasks: PropTypes.array,
   editTask: PropTypes.func.isRequired,
   deleteTask: PropTypes.func.isRequired,
@@ -77,4 +70,4 @@ Tasks.propTypes = {
   stoppedTaskId: PropTypes.string
 };
 
-export default firestoreConnect()(Tasks);
+export default Tasks;

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { firebaseConnect, firestoreConnect } from 'react-redux-firebase';
 import PropTypes from 'prop-types';
-import { compose } from 'redux';
-import { connect } from 'react-redux';
+
+import uuid from 'uuid';
 
 function AddTask(props) {
   const [name, setName] = useState('');
@@ -30,8 +29,6 @@ function AddTask(props) {
   const handleSubmit = e => {
     e.preventDefault();
 
-    const { firestore, auth } = props;
-
     // Validate the inputs
     const check = props.validateTaskInputs(props.taskId, name, hours, minutes);
 
@@ -41,7 +38,7 @@ function AddTask(props) {
       return;
     }
 
-    // Otherwise build the object to add the task in firestore
+    // Otherwise build the object to add the task in LS
 
     const newHours = hours === null || hours === '' ? 0 : parseInt(hours);
     const newMinutes =
@@ -50,7 +47,7 @@ function AddTask(props) {
     const created = new Date();
 
     const taskAdd = {
-      uid: auth.uid,
+      id: uuid.v4(),
       created,
       name,
       logged,
@@ -58,13 +55,8 @@ function AddTask(props) {
       last: null
     };
 
-    // Insert in firestore
-    firestore.add({ collection: 'tasks' }, taskAdd).then(res => {
-      // Append the doc id to the task object
-      taskAdd.id = res.id;
-      // Start the new task
-      props.startTask(taskAdd);
-    });
+    // Insert in LS
+    props.addTask(taskAdd);
 
     // Add was successful, clear the form
     setName('');
@@ -143,14 +135,10 @@ function AddTask(props) {
 }
 
 AddTask.propTypes = {
-  firebase: PropTypes.object.isRequired,
-  auth: PropTypes.object.isRequired
+  startTask: PropTypes.func.isRequired,
+  addTask: PropTypes.func.isRequired,
+  hideForm: PropTypes.func.isRequired,
+  validateTaskInputs: PropTypes.func.isRequired
 };
 
-export default compose(
-  firestoreConnect(),
-  firebaseConnect(),
-  connect((state, props) => ({
-    auth: state.firebase.auth
-  }))
-)(AddTask);
+export default AddTask;
