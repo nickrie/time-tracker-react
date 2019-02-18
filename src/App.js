@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { UserIsAuthenticated, UserIsNotAuthenticated } from './helpers/auth';
 import { Provider } from 'react-redux';
@@ -54,25 +54,23 @@ const store = createStoreWithFirebase(
   composeWithDevTools(reactReduxFirebase(firebase))
 );
 
-class App extends Component {
-  render() {
-    return (
-      <Provider store={store}>
-        <Router>
-          <div className="App">
-            <Switch>
-              <Route
-                exact
-                path="/login"
-                component={UserIsNotAuthenticated(Login)}
-              />
-              <Route exact path="/" component={UserIsAuthenticated(Main)} />
-            </Switch>
-          </div>
-        </Router>
-      </Provider>
-    );
-  }
+function App() {
+  return (
+    <Provider store={store}>
+      <Router>
+        <div className="App">
+          <Switch>
+            <Route
+              exact
+              path="/login"
+              component={UserIsNotAuthenticated(Login)}
+            />
+            <Route exact path="/" component={UserIsAuthenticated(Main)} />
+          </Switch>
+        </div>
+      </Router>
+    </Provider>
+  );
 }
 
 export default App;

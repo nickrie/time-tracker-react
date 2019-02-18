@@ -1,9 +1,7 @@
-import React, { Component } from 'react';
+import React from 'react';
 
-class LoadingScreen extends Component {
-  render() {
-    return <div>Loading...</div>;
-  }
+function LoadingScreen() {
+  return <div>Loading...</div>;
 }
 
 export default LoadingScreen;
