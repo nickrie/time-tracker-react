@@ -47,6 +47,7 @@ class Main extends Component {
 
   // Edit a task
   editTask(taskId) {
+    console.log('edit task', taskId);
     this.showForm();
     this.setState({ editTaskId: taskId });
   }

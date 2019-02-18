@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { firestoreConnect } from 'react-redux-firebase';
 
@@ -7,65 +7,51 @@ import LastActive from './LastActive';
 import TaskButtons from './TaskButtons';
 import { displayActiveMinutes } from './../../helpers/display';
 
-class Task extends Component {
-  state = {
-    // Null indicates not running, a timestamp indicates when it started running
-    started: null,
-    // Null indicates it has never run, a timestamp indicates when it last ran
-    last: null,
-    // # of minutes the task has been active
-    activeMinutes: 0,
-    // Current date to use for calculating last active, updated via setInterval to force the display change
-    nowDate: null
-  };
+function Task(props) {
+  // Null indicates not running, a timestamp indicates when it started running
+  // const [started, setStarted] = useState(null);
 
-  constructor(props) {
-    super(props);
-    this.handleRowClick = this.handleRowClick.bind(this);
-    this.updateTimeValues = this.updateTimeValues.bind(this);
-  }
+  // Null indicates it has never run, a timestamp indicates when it last ran
+  // const [last, setLast] = useState(null);
 
-  componentDidMount() {
-    const { task } = this.props;
-    this.setState({
-      started: task.started,
-      last: task.last,
-      activeMinutes: displayActiveMinutes(task),
-      nowDate: new Date()
-    });
+  // # of minutes the task has been active
+  const [activeMinutes, setActiveMinutes] = useState(0);
+
+  // Current date to use for calculating last active, updated via setInterval to force the display change
+  const [nowDate, setNowDate] = useState(null);
+
+  let refreshTimer;
+
+  useEffect(() => {
+    const { task } = props;
+
+    // setStarted(task.started);
+    // setLast(task.last);
+    setActiveMinutes(displayActiveMinutes(task));
+    setNowDate(new Date());
+
     // Update our Time Logged and Last Active values every 5 seconds
-    this.refreshTimer = setInterval(this.updateTimeValues, 5000);
-  }
+    refreshTimer = setInterval(updateTimeValues, 5000);
 
-  componentWillUnmount() {
-    clearInterval(this.refreshTimer);
-  }
-
-  componentDidUpdate(prevProps) {
-    // If 'started' changed, we need to re-calculate the active minutes
-    if (this.props.task.started !== prevProps.task.started) {
-      this.updateTimeValues(this.props.task);
-    }
-  }
+    return function clear() {
+      clearInterval(refreshTimer);
+    };
+  });
 
   // Returns a boolean indicating whether or not the task is currently active
-  isActive() {
-    const { task } = this.props;
-    return task.started !== null;
-  }
+  const isActive = () => {
+    return props.task.started !== null;
+  };
 
   // Updates state values used for calculating Time Logged and Last Active
-  updateTimeValues() {
-    const { task } = this.props;
-    this.setState({
-      activeMinutes: displayActiveMinutes(task),
-      nowDate: new Date()
-    });
-  }
+  const updateTimeValues = () => {
+    setActiveMinutes(displayActiveMinutes(props.task));
+    setNowDate(new Date());
+  };
 
   // Row click handler
-  handleRowClick(e) {
-    const { task } = this.props;
+  const handleRowClick = e => {
+    const { task } = props;
 
     // Bail if they clicked the edit/delete button/icon
     //  those actions have their own click handlers in TaskButtons
@@ -79,93 +65,84 @@ class Task extends Component {
     }
 
     // If this task is active, stop it
-    if (this.isActive()) {
-      this.props.stopRunningTasks();
+    if (isActive()) {
+      props.stopRunningTasks();
     } else {
       // start the task (this also stops any other running tasks)
-      this.props.startTask(task);
+      props.startTask(task);
     }
+  };
+
+  const { task } = props;
+
+  // Set row classes
+
+  let rowClasses = 'row row-task border-top p-2 align-items-center';
+
+  if (props.stoppedTaskId === task.id) {
+    rowClasses += ' bg-danger';
+  } else if (isActive()) {
+    rowClasses += ' bg-success';
+  } else if (props.editTaskId === task.id) {
+    rowClasses += ' bg-primary text-light';
   }
 
-  render() {
-    const { task } = this.props;
+  // Set row hover icon
 
-    // Set row classes
+  let hoverIconClasses = '';
 
-    let rowClasses = 'row row-task border-top p-2 align-items-center';
+  if (isActive()) {
+    hoverIconClasses += 'hover-icon fas fa-stop';
+  } else {
+    hoverIconClasses += 'hover-icon fas fa-play';
+  }
 
-    if (this.props.stoppedTaskId === task.id) {
-      rowClasses += ' bg-danger';
-    } else if (this.isActive()) {
-      rowClasses += ' bg-success';
-    } else if (this.props.editTaskId === task.id) {
-      rowClasses += ' bg-primary text-light';
-    }
+  // Set row action icon if we just started/stopped a task
 
-    // Set row hover icon
+  let actionIconClasses = '';
 
-    let hoverIconClasses = '';
+  if (props.stoppedTaskId === task.id) {
+    actionIconClasses = 'fas fa-hand-paper';
+  } else if (props.startedTaskId === task.id) {
+    actionIconClasses = 'fas fa-rocket';
+  }
 
-    if (this.isActive()) {
-      hoverIconClasses += 'hover-icon fas fa-stop';
-    } else {
-      hoverIconClasses += 'hover-icon fas fa-play';
-    }
+  // Build icon tag
 
-    // Set row action icon if we just started/stopped a task
+  let icon = '';
+  if (actionIconClasses !== '') {
+    icon = <i className={actionIconClasses} />;
+  } else {
+    icon = <i className={hoverIconClasses} />;
+  }
 
-    let actionIconClasses = '';
-
-    if (this.props.stoppedTaskId === task.id) {
-      actionIconClasses = 'fas fa-hand-paper';
-    } else if (this.props.startedTaskId === task.id) {
-      actionIconClasses = 'fas fa-rocket';
-    }
-
-    // Build icon tag
-
-    let icon = '';
-    if (actionIconClasses !== '') {
-      icon = <i className={actionIconClasses} />;
-    } else {
-      icon = <i className={hoverIconClasses} />;
-    }
-
-    return (
-      <div className={rowClasses} onClick={this.handleRowClick}>
-        <div className="col col-1">{icon}</div>
-        <div
-          className={
-            'col col-4' +
-            (this.props.editTaskId === task.id ? ' bg-primary text-light' : '')
-          }
-        >
-          {task.name}
-        </div>
-        <div className="col col-3 text-right">
-          <LoggedTime
-            minutes={task.logged}
-            activeMinutes={this.state.activeMinutes}
-          />
-        </div>
-        <div className="col col-2">
-          <LastActive
-            isActive={this.isActive()}
-            last={task.last}
-            now={this.state.nowDate}
-          />
-        </div>
-        <div className="col col-2">
-          <TaskButtons
-            taskId={task.id}
-            deleteTask={this.props.deleteTask}
-            editTask={this.props.editTask}
-            editTaskId={this.props.editTaskId}
-          />
-        </div>
+  return (
+    <div className={rowClasses} onClick={handleRowClick}>
+      <div className="col col-1">{icon}</div>
+      <div
+        className={
+          'col col-4' +
+          (props.editTaskId === task.id ? ' bg-primary text-light' : '')
+        }
+      >
+        {task.name}
       </div>
-    );
-  }
+      <div className="col col-3 text-right">
+        <LoggedTime minutes={task.logged} activeMinutes={activeMinutes} />
+      </div>
+      <div className="col col-2">
+        <LastActive isActive={isActive()} last={task.last} now={nowDate} />
+      </div>
+      <div className="col col-2">
+        <TaskButtons
+          taskId={task.id}
+          deleteTask={props.deleteTask}
+          editTask={props.editTask}
+          editTaskId={props.editTaskId}
+        />
+      </div>
+    </div>
+  );
 }
 
 Task.propTypes = {
