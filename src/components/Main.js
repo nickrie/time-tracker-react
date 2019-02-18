@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
@@ -11,68 +11,49 @@ import AddTask from './tasks/AddTask';
 import EditTask from './tasks/EditTask';
 import Tasks from './tasks/Tasks';
 
-class Main extends Component {
-  state = {
-    formHidden: false,
-    editTaskId: null,
-    startedTaskId: null,
-    stoppedTaskId: null
-  };
-
-  constructor(props) {
-    super(props);
-    this.hideForm = this.hideForm.bind(this);
-    this.showForm = this.showForm.bind(this);
-    this.editTask = this.editTask.bind(this);
-    this.cancelEdit = this.cancelEdit.bind(this);
-    this.deleteTask = this.deleteTask.bind(this);
-    this.startTask = this.startTask.bind(this);
-    this.stopRunningTasks = this.stopRunningTasks.bind(this);
-    this.validateTaskInputs = this.validateTaskInputs.bind(this);
-  }
+function Main(props) {
+  const [formHidden, setFormHidden] = useState(false);
+  const [editTaskId, setEditTaskId] = useState(null);
+  const [startedTaskId, setStartedTaskId] = useState(null);
+  const [stoppedTaskId, setStoppedTaskId] = useState(null);
 
   // Hide the add/edit form
-  hideForm() {
-    this.setState({
-      formHidden: true
-    });
-  }
+  const hideForm = () => {
+    setFormHidden(true);
+  };
 
   // Show the add/edit form
-  showForm() {
-    this.setState({
-      formHidden: false
-    });
-  }
+  const showForm = () => {
+    setFormHidden(false);
+  };
 
   // Edit a task
-  editTask(taskId) {
-    console.log('edit task', taskId);
-    this.showForm();
-    this.setState({ editTaskId: taskId });
-  }
+  const editTask = taskId => {
+    showForm();
+    setEditTaskId(taskId);
+  };
 
   // Cancel the edit form
-  cancelEdit() {
-    this.setState({ editTaskId: null });
-  }
+  const cancelEdit = () => {
+    setEditTaskId(null);
+  };
 
   // Delete a task
-  deleteTask(taskId) {
+  const deleteTask = taskId => {
     if (window.confirm('Are you sure you want to delete this task?')) {
-      const { firestore } = this.props;
+      const { firestore } = props;
       firestore.delete({ collection: 'tasks', doc: taskId }).then(() => {
-        this.cancelEdit();
+        cancelEdit();
       });
     }
-  }
+  };
 
   // Start a task timer
-  startTask(task) {
-    const { firestore } = this.props;
+  const startTask = task => {
+    const { firestore } = props;
 
     // Stop any running tasks first
-    this.stopRunningTasks();
+    stopRunningTasks();
 
     // Build the update object
     const started = new Date();
@@ -85,29 +66,25 @@ class Main extends Component {
       .update({ collection: 'tasks', doc: task.id }, taskUpdate)
       .then(() => {
         // Mark this task id as started for the action icon
-        this.setState({
-          startedTaskId: task.id
-        });
+        setStartedTaskId(task.id);
         // Clear startedTaskId after one second
         setTimeout(() => {
-          this.setState({
-            startedTaskId: null
-          });
+          setStartedTaskId(null);
         }, 1000);
       });
 
     return false;
-  }
+  };
 
   // Stop all running task timers
   //  NOTE: although the app limits one running app at a time,
   //    updating a record at firestore could cause more than one
   //    to be running, so assume more than one could be running.
-  stopRunningTasks() {
-    const { firestore } = this.props;
+  const stopRunningTasks = () => {
+    const { firestore } = props;
     let started, taskUpdate;
 
-    this.props.tasks.forEach(task => {
+    props.tasks.forEach(task => {
       if (task.started !== null) {
         // Stop the task
         started = null;
@@ -139,23 +116,19 @@ class Main extends Component {
           .update({ collection: 'tasks', doc: task.id }, taskUpdate)
           .then(() => {
             // Mark this task id as stopped for the action icon
-            this.setState({
-              stoppedTaskId: task.id
-            });
+            setStoppedTaskId(task.id);
             // Clear stoppedTaskId after one second
             setTimeout(() => {
-              this.setState({
-                stoppedTaskId: null
-              });
+              setStoppedTaskId(null);
             }, 1000);
           });
       }
     });
-  }
+  };
 
   // Validate task form input values
-  validateTaskInputs(id, name, hours, minutes) {
-    const { tasks } = this.props;
+  const validateTaskInputs = (id, name, hours, minutes) => {
+    const { tasks } = props;
 
     // Ensure name is not empty
     if (name.trim() === '') {
@@ -211,55 +184,54 @@ class Main extends Component {
     }
 
     return { error: false };
-  }
+  };
 
-  render() {
-    let form = '';
+  // Build the form
 
-    if (this.state.formHidden) {
-      form = '';
-    } else if (this.state.editTaskId === null) {
-      form = (
-        <AddTask
-          startTask={this.startTask}
-          hideForm={this.hideForm}
-          validateTaskInputs={this.validateTaskInputs}
-        />
-      );
-    } else {
-      form = (
-        <EditTask
-          taskId={this.state.editTaskId}
-          cancelEdit={this.cancelEdit}
-          deleteTask={this.deleteTask}
-          validateTaskInputs={this.validateTaskInputs}
-        />
-      );
-    }
+  let form = '';
 
-    return (
-      <div className="main">
-        <AppNavbar
-          formHidden={this.state.formHidden}
-          showForm={this.showForm}
-        />
-        <div className="container mt-2">
-          {form}
-          <Tasks
-            tasks={this.props.tasks}
-            editTask={this.editTask}
-            deleteTask={this.deleteTask}
-            startTask={this.startTask}
-            stopRunningTasks={this.stopRunningTasks}
-            editTaskId={this.state.editTaskId}
-            startedTaskId={this.state.startedTaskId}
-            stoppedTaskId={this.state.stoppedTaskId}
-          />
-        </div>
-        <AppFooter />
-      </div>
+  if (formHidden) {
+    form = '';
+  } else if (editTaskId === null) {
+    form = (
+      <AddTask
+        startTask={startTask}
+        hideForm={hideForm}
+        validateTaskInputs={validateTaskInputs}
+      />
+    );
+  } else {
+    form = (
+      <EditTask
+        taskId={editTaskId}
+        cancelEdit={cancelEdit}
+        deleteTask={deleteTask}
+        validateTaskInputs={validateTaskInputs}
+      />
     );
   }
+
+  // Output
+
+  return (
+    <div className="main">
+      <AppNavbar formHidden={formHidden} showForm={showForm} />
+      <div className="container mt-2">
+        {form}
+        <Tasks
+          tasks={props.tasks}
+          editTask={editTask}
+          deleteTask={deleteTask}
+          startTask={startTask}
+          stopRunningTasks={stopRunningTasks}
+          editTaskId={editTaskId}
+          startedTaskId={startedTaskId}
+          stoppedTaskId={stoppedTaskId}
+        />
+      </div>
+      <AppFooter />
+    </div>
+  );
 }
 
 Main.propTypes = {

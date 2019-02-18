@@ -8,12 +8,6 @@ import TaskButtons from './TaskButtons';
 import { displayActiveMinutes } from './../../helpers/display';
 
 function Task(props) {
-  // Null indicates not running, a timestamp indicates when it started running
-  // const [started, setStarted] = useState(null);
-
-  // Null indicates it has never run, a timestamp indicates when it last ran
-  // const [last, setLast] = useState(null);
-
   // # of minutes the task has been active
   const [activeMinutes, setActiveMinutes] = useState(0);
 
@@ -25,8 +19,6 @@ function Task(props) {
   useEffect(() => {
     const { task } = props;
 
-    // setStarted(task.started);
-    // setLast(task.last);
     setActiveMinutes(displayActiveMinutes(task));
     setNowDate(new Date());
 
