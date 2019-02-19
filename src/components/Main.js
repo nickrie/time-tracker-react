@@ -14,6 +14,7 @@ function Main(props) {
   const [startedTaskId, setStartedTaskId] = useState(null);
   const [stoppedTaskId, setStoppedTaskId] = useState(null);
 
+  // Load tasks from LocalStorage on mount
   useEffect(
     () => {
       // Get Tasks from LS
@@ -25,6 +26,12 @@ function Main(props) {
     },
     [] // only run on mount/unmount
   );
+
+  // Update LocalStorage when tasks state changes
+  useEffect(() => {
+    // Update LS
+    window.localStorage.setItem('tasks-v2', JSON.stringify(tasks));
+  }, [tasks]);
 
   // Hide the add/edit form
   const hideForm = () => {
@@ -49,12 +56,8 @@ function Main(props) {
 
   // Add a task
   const addTask = task => {
-    console.log('add', task);
     // Add the task
     setTasks([task, ...tasks]);
-    // Update LS
-    window.localStorage.setItem('tasks-v2', JSON.stringify(tasks));
-    console.log('new val', tasks);
     // Start the task
     toggleTask(task);
   };
@@ -71,8 +74,6 @@ function Main(props) {
     if (idx !== -1) {
       // Update the taskId
       setTasks([...tasks.slice(0, idx), task, ...tasks.slice(idx + 1)]);
-      // Update LS
-      window.localStorage.setItem('tasks-v2', JSON.stringify(tasks));
     }
   };
 
@@ -81,8 +82,6 @@ function Main(props) {
     if (window.confirm('Are you sure you want to delete this task?')) {
       // Remove the task
       setTasks(tasks.filter(task => task.id !== id));
-      // Update LS
-      window.localStorage.setItem('tasks-v2', JSON.stringify(tasks));
       // If we deleted from the Edit Form, hide it
       cancelEdit();
     }
