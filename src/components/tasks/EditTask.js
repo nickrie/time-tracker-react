@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { displayMinutes, displayActiveMinutes } from './../../helpers/display';
 
 function EditTask(props) {
-  const [loadedTaskId, setLoadedTaskId] = useState(false);
   const [name, setName] = useState('');
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
@@ -14,46 +13,35 @@ function EditTask(props) {
 
   // Update the activeMinutes state for the edit screen message indicating
   //  that the logged time does not include active time
-  const updateActiveMinutes = loadedTaskId => {
-    if (loadedTaskId) {
+  const updateActiveMinutes = () => {
+    if (props.task) {
       setActiveMinutes(displayActiveMinutes(props.task));
     }
   };
 
   useEffect(() => {
     // If we're editing a new task
-    if (!loadedTaskId || loadedTaskId !== props.editTaskId) {
-      // Load task values
-      let task;
-      props.tasks.forEach(taskCompare => {
-        if (taskCompare.id === props.editTaskId) {
-          task = taskCompare;
-        }
-      });
+    let newHours = 0;
+    let newMinutes = 0;
 
-      let newHours = 0;
-      let newMinutes = 0;
+    if (props.task.logged > 60) {
+      newHours = Math.floor(props.task.logged / 60);
+      newMinutes = props.task.logged % 60;
+    } else {
+      newMinutes = props.task.logged;
+    }
 
-      if (task.logged > 60) {
-        newHours = Math.floor(task.logged / 60);
-        newMinutes = task.logged % 60;
-      } else {
-        newMinutes = task.logged;
-      }
-
-      // Set state with task values
-      setLoadedTaskId(task.id);
-      setName(task.name);
-      setHours(newHours);
-      setMinutes(newMinutes);
-      setActiveMinutes(displayActiveMinutes(task));
-      // If we're editing an Active task,
-      //  Refresh active minutes every 5 seconds
-      if (task.started !== null) {
-        refreshTimer = setInterval(() => {
-          updateActiveMinutes(task.id);
-        }, 5000);
-      }
+    // Set state with task values
+    setName(props.task.name);
+    setHours(newHours);
+    setMinutes(newMinutes);
+    setActiveMinutes(displayActiveMinutes(props.task));
+    // If we're editing an Active task,
+    //  Refresh active minutes every 5 seconds
+    if (props.task.started !== null) {
+      refreshTimer = setInterval(() => {
+        updateActiveMinutes();
+      }, 5000);
     }
 
     return function clear() {
@@ -92,7 +80,7 @@ function EditTask(props) {
 
   // Delete button handler
   const handleDeleteClick = () => {
-    props.deleteTask(props.taskId);
+    props.deleteTask(props.task.id);
   };
 
   // Submit button handler
@@ -100,7 +88,7 @@ function EditTask(props) {
     e.preventDefault();
 
     // Validate the inputs
-    const check = props.validateTaskInputs(props.taskId, name, hours, minutes);
+    const check = props.validateTaskInputs(props.task.id, name, hours, minutes);
 
     // If there was an error display it and prevent the update
     if (check.error) {
@@ -116,8 +104,11 @@ function EditTask(props) {
     const logged = parseInt(newHours) * 60 + parseInt(newMinutes);
 
     const taskUpdate = {
+      id: props.task.id,
       name,
-      logged
+      logged,
+      started: props.task.started,
+      last: props.task.last
     };
 
     // Update task
@@ -222,8 +213,11 @@ function EditTask(props) {
 }
 
 EditTask.propTypes = {
-  taskId: PropTypes.string,
-  task: PropTypes.object
+  task: PropTypes.object,
+  cancelEdit: PropTypes.func.isRequired,
+  deleteTask: PropTypes.func.isRequired,
+  updateTask: PropTypes.func.isRequired,
+  validateTaskInputs: PropTypes.func.isRequired
 };
 
 export default EditTask;

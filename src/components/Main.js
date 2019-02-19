@@ -104,7 +104,11 @@ function Main(props) {
     // Build the update object
     const started = new Date();
     const taskUpdate = {
-      started
+      id: task.id,
+      name: task.name,
+      logged: task.logged,
+      started,
+      last: task.last
     };
 
     // Update LS
@@ -134,7 +138,7 @@ function Main(props) {
         // Calculate new logged time
         //  Don't update logged time or last date if it was active for less than 5 seconds
         const a = Moment(new Date());
-        const b = Moment(task.started.toDate());
+        const b = Moment(task.started);
         const seconds = a.diff(b, 'seconds');
         const minutes = seconds < 5 ? 0 : Math.ceil(seconds / 60);
 
@@ -143,23 +147,31 @@ function Main(props) {
           const logged = parseInt(task.logged) + minutes;
           const last = new Date();
           taskUpdate = {
+            id: task.id,
+            name: task.name,
+            logged,
             started,
-            last,
-            logged
+            last
           };
         } else {
           // No time was logged, so just stop the task
           taskUpdate = {
-            started
+            id: task.id,
+            name: task.name,
+            logged: task.logged,
+            started,
+            last: task.last
           };
         }
 
         // Update the task
-        this.updateTask(taskUpdate);
+        updateTask(taskUpdate);
         // Mark this task id as stopped for the action icon
         setStoppedTaskId(task.id);
         // Clear startedTaskId after one second
-        setStoppedTaskId(null);
+        setTimeout(() => {
+          setStoppedTaskId(null);
+        }, 1000);
       }
     });
   };
@@ -240,8 +252,7 @@ function Main(props) {
   } else {
     form = (
       <EditTask
-        taskId={editTaskId}
-        tasks={tasks}
+        task={tasks.filter(task => task.id === editTaskId)[0]}
         cancelEdit={cancelEdit}
         deleteTask={deleteTask}
         updateTask={updateTask}

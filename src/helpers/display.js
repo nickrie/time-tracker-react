@@ -18,7 +18,7 @@ export function displayActiveMinutes(task) {
 
   if (task.started !== null) {
     const a = Moment(new Date());
-    const b = Moment(task.started.toDate());
+    const b = Moment(task.started);
     const seconds = a.diff(b, 'seconds');
     // we only start adding time if 5 seconds have elapsed, see task.js::stopTask()
     if (seconds >= 5) {

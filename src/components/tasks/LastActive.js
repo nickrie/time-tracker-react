@@ -15,12 +15,12 @@ function LastActive(props) {
   } else if (last !== null) {
     // get short elapsed time str
     let a = moment(now);
-    let b = moment(last.toDate());
+    let b = moment(last);
     let seconds = a.diff(b, 'seconds');
     let minutes = Math.ceil(seconds / 60);
     short = displayMinutes(minutes);
     // get long elapsed time str
-    long = moment(last.toDate()).from(now);
+    long = moment(last).from(now);
   }
 
   return (
@@ -32,9 +32,11 @@ function LastActive(props) {
 }
 
 LastActive.propTypes = {
-  isActive: PropTypes.bool.isRequired,
-  last: PropTypes.object,
-  now: PropTypes.object
+  isActive: PropTypes.bool.isRequired
+  /* TODO these types are conditional, null or date
+  last: PropTypes.string,
+  now: PropTypes.string
+  */
 };
 
 export default LastActive;
