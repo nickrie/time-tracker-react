@@ -59,6 +59,8 @@ function Main(props) {
     // Add the task
     setTasks([task, ...tasks]);
     // Start the task
+    // TODO: FIX this won't work because tasks isn't set yet
+    //    by the time the toggle goes to updateTask
     toggleTask(task);
   };
 
@@ -89,6 +91,7 @@ function Main(props) {
 
   // Toggle a task
   const toggleTask = task => {
+    console.log('toggle', task);
     if (task.started === null) {
       startTask(task);
     } else {
@@ -102,12 +105,11 @@ function Main(props) {
     stopRunningTasks();
 
     // Build the update object
-    const started = new Date();
     const taskUpdate = {
       id: task.id,
       name: task.name,
       logged: task.logged,
-      started,
+      started: new Date(),
       last: task.last
     };
 
@@ -128,13 +130,10 @@ function Main(props) {
   //    since the user is free to edit LocalStorage assume more
   //    than one could be running.
   const stopRunningTasks = () => {
-    let started, taskUpdate;
+    let taskUpdate;
 
     tasks.forEach(task => {
       if (task.started !== null) {
-        // Stop the task
-        started = null;
-
         // Calculate new logged time
         //  Don't update logged time or last date if it was active for less than 5 seconds
         const a = Moment(new Date());
@@ -150,7 +149,7 @@ function Main(props) {
             id: task.id,
             name: task.name,
             logged,
-            started,
+            started: null,
             last
           };
         } else {
@@ -159,7 +158,7 @@ function Main(props) {
             id: task.id,
             name: task.name,
             logged: task.logged,
-            started,
+            started: null,
             last: task.last
           };
         }
